@@ -31,6 +31,9 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/dana_kecemasan
       PORT: 3000
+      APP_PASSWORD: P@ssw0rd
+      SESSION_SECRET: hanya-untuk-local-testing-je
+      NODE_ENV: development
     depends_on:
       db:
         condition: service_healthy
