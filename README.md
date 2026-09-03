@@ -53,3 +53,4 @@ ringkasannya:
 3. Jalankan `schema.sql` pada Supabase melalui SQL Editor.
 4. Deploy ke Render.com (Web Service, guna Docker), sambungkan ke repo GitHub.
 5. Set environment variable `DATABASE_URL` di Render kepada connection string Supabase.
+Diuruskan oleh Adi.
