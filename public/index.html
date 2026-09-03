@@ -92,13 +92,74 @@
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
   .toast.err{background:var(--coral); color:#fff;}
   .status{font-size:12px; color:var(--text-faint); text-align:center; padding:14px;}
+
+  .login-screen{
+    position:fixed; inset:0;
+    background:var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    padding:20px;
+  }
+  .login-box{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:6px;
+    padding:32px 28px;
+    width:100%;
+    max-width:340px;
+    text-align:center;
+  }
+  .login-box .mark{
+    font-family:'Source Serif 4', serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold);
+    margin-bottom:4px;
+  }
+  .login-box .sub{font-size:13px; color:var(--text-soft); margin-bottom:22px;}
+  .login-box input{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--card-line);
+    border-radius:3px;
+    background:#0C1B2C;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    margin-bottom:12px;
+  }
+  .login-box .btn-primary{width:100%; padding:11px;}
+  .login-error{font-size:12px; color:var(--coral); margin-bottom:10px; display:none;}
+  .logout-link{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:12px;
+    color:var(--text-faint);
+    cursor:pointer;
+    border-top:1px solid var(--panel-line);
+  }
+  .logout-link:hover{color:var(--coral);}
 </style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
+
+<div class="login-screen" id="loginScreen" style="display:none;">
+  <div class="login-box">
+    <div class="mark">Nur'</div>
+    <div class="sub">Log masuk untuk teruskan</div>
+    <div class="login-error" id="loginError"></div>
+    <input type="password" id="loginPasswordInput" placeholder="Kata laluan" autocomplete="current-password">
+    <button class="btn-primary" id="loginBtn" onclick="submitLogin()">Log masuk</button>
+  </div>
+</div>
+
+<div class="app" id="appShell" style="display:none;">
+  <aside class="sidebar" style="display:flex; flex-direction:column;">
     <div class="brand"><div class="mark">Nur'</div><div class="sub">Rancangan Nur' Ke-1</div></div>
     <div class="teras-item">Kewangan</div>
+    <div class="logout-link" onclick="logout()">Log keluar</div>
   </aside>
 
   <main class="content">
@@ -181,11 +242,69 @@ async function api(path, options){
     headers: { 'Content-Type': 'application/json' },
     ...options
   });
+  if(res.status === 401 && path !== '/auth/login'){
+    // Session luput/tak sah — tunjuk semula skrin login
+    showLoginScreen();
+    throw new Error('Sesi tamat. Sila log masuk semula.');
+  }
   const data = res.status === 204 ? null : await res.json();
   if(!res.ok){
     throw new Error((data && data.error) || 'Ralat tidak diketahui.');
   }
   return data;
+}
+
+function showLoginScreen(){
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPasswordInput').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginPasswordInput').focus();
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  loadAll();
+}
+
+async function checkSession(){
+  try{
+    const result = await api('/auth/session');
+    if(result.loggedIn){
+      showApp();
+    } else {
+      showLoginScreen();
+    }
+  }catch(e){
+    showLoginScreen();
+  }
+}
+
+async function submitLogin(){
+  const password = document.getElementById('loginPasswordInput').value;
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  try{
+    await api('/auth/login', { method: 'POST', body: JSON.stringify({ password }) });
+    showApp();
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('loginPasswordInput')?.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') submitLogin();
+});
+
+async function logout(){
+  try{ await api('/auth/logout', { method: 'POST' }); }catch(e){}
+  showLoginScreen();
 }
 
 async function loadAll(){
@@ -361,7 +480,7 @@ function showToast(msg, isErr){
 document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
 document.getElementById('accOverlay').addEventListener('click', (e) => { if(e.target.id === 'accOverlay') closeAccModal(); });
 
-loadAll();
+checkSession();
 </script>
 </body>
 </html>
