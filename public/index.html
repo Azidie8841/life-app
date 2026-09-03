@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nur' — Kewangan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1A2A;
+    --panel:#0E2033;
+    --panel-line:rgba(255,255,255,0.08);
+    --card:#122840;
+    --card-line:rgba(255,255,255,0.07);
+    --text:#EDEFF3;
+    --text-soft:#93A4B8;
+    --text-faint:#5E7186;
+    --gold:#C9A24B;
+    --gold-soft:rgba(201,162,75,0.14);
+    --coral:#C2665A;
+    --coral-soft:rgba(194,102,90,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
+  .app{display:flex; min-height:100vh;}
+  .sidebar{width:236px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--panel-line); padding:26px 16px;}
+  .brand{padding:0 8px 22px; margin-bottom:14px; border-bottom:1px solid var(--panel-line);}
+  .brand .mark{font-family:'Source Serif 4', serif; font-size:22px; font-weight:600; color:var(--gold); letter-spacing:0.3px;}
+  .brand .sub{font-size:11.5px; color:var(--text-faint); margin-top:4px;}
+  .teras-item{display:flex; align-items:center; gap:11px; padding:10px 10px; border-radius:5px; color:var(--gold); background:var(--gold-soft); border-left:2px solid var(--gold); font-size:13.5px; font-weight:500;}
+  @media (max-width:760px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%; padding:14px 12px; display:flex; align-items:center;}
+    .brand{border-bottom:none; border-right:1px solid var(--panel-line); padding:0 14px 0 4px; margin:0 10px 0 0;}
+  }
+  .content{flex:1; min-width:0; padding:32px 32px 90px;}
+  .content-inner{max-width:920px; margin:0 auto;}
+  header.top{border-bottom:1px solid var(--card-line); padding-bottom:18px; margin-bottom:24px;}
+  header.top h1{font-family:'Source Serif 4', serif; font-weight:600; font-size:22px; margin:0; letter-spacing:0.2px;}
+  header.top .tagline{font-size:13px; color:var(--text-soft); margin-top:5px;}
+  .hero{background:var(--card); border:1px solid var(--card-line); border-radius:5px; padding:26px 28px; margin-bottom:22px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
+  .hero .label{font-size:13px; color:var(--text-soft); margin-bottom:6px;}
+  .hero .amount{font-family:'Source Serif 4', serif; font-weight:500; font-size:42px; line-height:1; color:var(--gold); font-variant-numeric:tabular-nums;}
+  .hero .breakdown{text-align:right; font-size:13px; color:var(--text-soft); line-height:1.75;}
+  .hero .breakdown b{color:var(--text); font-variant-numeric:tabular-nums; font-weight:600;}
+  .section-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .section-head h2{font-family:'Source Serif 4', serif; font-size:14.5px; font-weight:600; margin:0; color:var(--text-soft);}
+  .accounts{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin-bottom:28px;}
+  .acc-card{background:var(--card); border:1px solid var(--card-line); border-radius:5px; padding:18px;}
+  .acc-card .acc-name-row{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;}
+  .acc-card .acc-name{font-size:13px; color:var(--text-soft);}
+  .acc-edit-btn{background:none; border:none; padding:2px 4px; cursor:pointer; color:var(--text-faint); font-size:12px;}
+  .acc-edit-btn:hover{color:var(--gold);}
+  .acc-card .acc-balance{font-family:'Source Serif 4', serif; font-size:24px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:15px;}
+  .acc-card .acc-actions{display:flex; gap:8px;}
+  .acc-card.add-card{display:flex; align-items:center; justify-content:center; border:1px dashed var(--card-line); background:transparent; cursor:pointer; min-height:106px; color:var(--text-faint); font-size:13px; font-weight:500; transition:border-color .15s ease, color .15s ease;}
+  .acc-card.add-card:hover{border-color:var(--gold); color:var(--gold);}
+  button{font-family:'Inter',sans-serif; font-size:13px; font-weight:600; border:none; border-radius:3px; padding:9px 14px; cursor:pointer; transition:opacity .15s ease;}
+  button:hover{opacity:0.85;} button:active{opacity:0.7;} button:disabled{opacity:0.5; cursor:default;}
+  .btn-add{background:var(--gold-soft); color:var(--gold);}
+  .btn-withdraw{background:var(--coral-soft); color:var(--coral);}
+  .btn-primary{background:var(--gold); color:#20180A; padding:10px 18px;}
+  .btn-ghost{background:transparent; color:var(--text-soft); border:1px solid var(--card-line);}
+  .btn-danger{background:transparent; color:var(--coral); border:1px solid var(--coral-soft);}
+  section.ledger{background:var(--card); border:1px solid var(--card-line); border-radius:5px; overflow:hidden;}
+  .ledger-head{display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom:1px solid var(--card-line);}
+  .ledger-head h2{font-family:'Source Serif 4', serif; font-size:15px; font-weight:600; margin:0;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  thead th{text-align:left; font-weight:500; color:var(--text-faint); padding:10px 20px; border-bottom:1px solid var(--card-line); font-size:11.5px;}
+  tbody td{padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; color:var(--text);}
+  tbody tr:last-child td{border-bottom:none;}
+  td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .tag{display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px;}
+  .tag.add{background:var(--gold-soft); color:var(--gold);}
+  .tag.withdraw{background:var(--coral-soft); color:var(--coral);}
+  .reason{color:var(--text-soft); font-size:12.5px;}
+  .empty{padding:40px 20px; text-align:center; color:var(--text-faint); font-size:13.5px;}
+  .overlay{position:fixed; inset:0; background:rgba(4,10,17,0.6); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--card); border:1px solid var(--card-line); border-radius:6px; padding:26px; width:100%; max-width:380px;}
+  .modal h3{font-family:'Source Serif 4', serif; font-size:18px; margin:0 0 4px; color:var(--text);}
+  .modal .sub{font-size:12.5px; color:var(--text-soft); margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; color:var(--text-soft); margin-bottom:5px;}
+  .field input, .field textarea{width:100%; padding:9px 10px; border:1px solid var(--card-line); border-radius:3px; font-family:'Inter',sans-serif; font-size:14px; background:#0C1B2C; color:var(--text);}
+  .field textarea{resize:vertical; min-height:56px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
+  .modal-actions.split{justify-content:space-between;}
+  .error-msg{font-size:12px; color:var(--coral); margin-top:-8px; margin-bottom:10px; display:none;}
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gold); color:#20180A; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; opacity:0; transition:opacity .2s ease, transform .2s ease; pointer-events:none; z-index:20; max-width:80vw; text-align:center;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast.err{background:var(--coral); color:#fff;}
+  .status{font-size:12px; color:var(--text-faint); text-align:center; padding:14px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark">Nur'</div><div class="sub">Rancangan Nur' Ke-1</div></div>
+    <div class="teras-item">Kewangan</div>
+  </aside>
+
+  <main class="content">
+    <div class="content-inner">
+      <header class="top">
+        <h1>Dana Kecemasan</h1>
+        <div class="tagline" id="tagline">Simpanan kecemasan merentasi semua akaun</div>
+      </header>
+
+      <div class="hero">
+        <div>
+          <div class="label">Jumlah keseluruhan</div>
+          <div class="amount" id="totalAmount">RM 0.00</div>
+        </div>
+        <div class="breakdown" id="breakdown"></div>
+      </div>
+
+      <div class="section-head"><h2>Tempat simpanan</h2></div>
+      <div class="accounts" id="accountsGrid"></div>
+
+      <section class="ledger">
+        <div class="ledger-head"><h2>Rekod transaksi</h2></div>
+        <div id="ledgerBody"><div class="status">Memuatkan...</div></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Tambah dana</h3>
+    <div class="sub" id="modalSub">ASB 1</div>
+    <div class="field"><label>Jumlah (RM)</label><input type="number" id="amountInput" min="0" step="0.01" placeholder="0.00"></div>
+    <div class="field" id="reasonField"><label id="reasonLabel">Sebab</label><textarea id="reasonInput" placeholder="Contoh: Rawatan hospital, baiki kereta..."></textarea></div>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Batal</button>
+      <button class="btn-primary" id="confirmBtn" onclick="submitTransaction()">Sahkan</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="accOverlay">
+  <div class="modal">
+    <h3 id="accModalTitle">Tempat simpanan baharu</h3>
+    <div class="sub" id="accModalSub">Contoh: Tabung Haji, Simpanan Bank X</div>
+    <div class="field"><label>Nama tempat simpanan</label><input type="text" id="accNameInput" placeholder="Contoh: Tabung Haji"></div>
+    <div class="error-msg" id="accErrorMsg"></div>
+    <div class="modal-actions split" id="accModalActions">
+      <button class="btn-danger" id="accDeleteBtn" style="display:none;" onclick="deleteAccount()">Padam akaun</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" onclick="closeAccModal()">Batal</button>
+        <button class="btn-primary" id="accConfirmBtn" onclick="submitAccount()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Semua data sekarang datang dari backend (Express + Postgres) melalui fetch(),
+// bukan window.storage lagi. API_BASE kosong bermaksud "same origin" —
+// sebab server yang sama juga yang serve fail HTML ini.
+const API_BASE = '/api';
+
+let accounts = [];
+let transactions = [];
+let modalMode = null, modalAccountId = null;
+let accModalMode = null, accEditingId = null;
+
+function fmt(n){
+  return 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function findAccount(id){ return accounts.find(a => a.id === id); }
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str == null ? '' : str; return d.innerHTML; }
+
+async function api(path, options){
+  const res = await fetch(API_BASE + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+  const data = res.status === 204 ? null : await res.json();
+  if(!res.ok){
+    throw new Error((data && data.error) || 'Ralat tidak diketahui.');
+  }
+  return data;
+}
+
+async function loadAll(){
+  try{
+    [accounts, transactions] = await Promise.all([
+      api('/accounts'),
+      api('/transactions')
+    ]);
+    render();
+  }catch(e){
+    document.getElementById('ledgerBody').innerHTML =
+      `<div class="empty">Tak dapat sambung ke pelayan. Pastikan backend berjalan.<br>(${escapeHtml(e.message)})</div>`;
+  }
+}
+
+function render(){
+  const total = accounts.reduce((s,a) => s + parseFloat(a.balance || 0), 0);
+  document.getElementById('totalAmount').textContent = fmt(total);
+  document.getElementById('tagline').textContent = accounts.length
+    ? 'Simpanan kecemasan — ' + accounts.map(a => a.name).join(', ')
+    : 'Simpanan kecemasan merentasi semua akaun';
+  document.getElementById('breakdown').innerHTML = accounts
+    .map(a => `${escapeHtml(a.name)}: <b>${fmt(a.balance)}</b>`).join('<br>');
+
+  renderAccounts();
+  renderLedger();
+}
+
+function renderAccounts(){
+  const grid = document.getElementById('accountsGrid');
+  let html = accounts.map(a => `
+    <div class="acc-card">
+      <div class="acc-name-row">
+        <div class="acc-name">${escapeHtml(a.name)}</div>
+        <button class="acc-edit-btn" onclick="openAccModal('edit','${a.id}')">Edit</button>
+      </div>
+      <div class="acc-balance">${fmt(a.balance)}</div>
+      <div class="acc-actions">
+        <button class="btn-add" onclick="openModal('add','${a.id}')">+ Tambah</button>
+        <button class="btn-withdraw" onclick="openModal('withdraw','${a.id}')">− Keluar</button>
+      </div>
+    </div>
+  `).join('');
+  html += `<div class="acc-card add-card" onclick="openAccModal('new')">+ Tambah tempat simpanan</div>`;
+  grid.innerHTML = html;
+}
+
+function renderLedger(){
+  const body = document.getElementById('ledgerBody');
+  if(!transactions.length){
+    body.innerHTML = '<div class="empty">Belum ada transaksi. Mula dengan tambah dana ke salah satu tempat simpanan.</div>';
+    return;
+  }
+  const rows = transactions.map(t => {
+    const sign = t.type === 'add' ? '+' : '−';
+    const tagClass = t.type === 'add' ? 'add' : 'withdraw';
+    const tagText = t.type === 'add' ? 'Tambah' : 'Keluar';
+    const dateLabel = new Date(t.created_at).toLocaleDateString('ms-MY', { day:'numeric', month:'short', year:'numeric' });
+    const reasonHtml = t.reason ? `<div class="reason">${escapeHtml(t.reason)}</div>` : '';
+    return `<tr>
+      <td>${dateLabel}${reasonHtml}</td>
+      <td>${escapeHtml(t.account_name)}</td>
+      <td><span class="tag ${tagClass}">${tagText}</span></td>
+      <td class="num">${sign} ${fmt(t.amount)}</td>
+      <td class="num">${fmt(t.balance_after)}</td>
+    </tr>`;
+  }).join('');
+  body.innerHTML = `<table>
+    <thead><tr><th>Tarikh &amp; sebab</th><th>Tempat simpanan</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Baki selepas</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function openModal(mode, accountId){
+  modalMode = mode; modalAccountId = accountId;
+  const acc = findAccount(accountId);
+  document.getElementById('modalTitle').textContent = mode === 'add' ? 'Tambah dana' : 'Keluarkan dana';
+  document.getElementById('modalSub').textContent = acc.name + ' — baki semasa: ' + fmt(acc.balance);
+  document.getElementById('amountInput').value = '';
+  document.getElementById('reasonInput').value = '';
+  document.getElementById('reasonLabel').textContent = mode === 'withdraw' ? 'Sebab keluarkan (wajib)' : 'Nota (pilihan)';
+  document.getElementById('confirmBtn').textContent = mode === 'add' ? 'Tambah' : 'Keluarkan';
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('amountInput').focus();
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+function showError(msg){ const el = document.getElementById('errorMsg'); el.textContent = msg; el.style.display = 'block'; }
+
+async function submitTransaction(){
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const reason = document.getElementById('reasonInput').value.trim();
+  if(!amount || amount <= 0){ showError('Sila masukkan jumlah yang sah.'); return; }
+  if(modalMode === 'withdraw' && !reason){ showError('Sila nyatakan sebab pengeluaran.'); return; }
+
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  try{
+    await api('/transactions', {
+      method: 'POST',
+      body: JSON.stringify({ accountId: modalAccountId, type: modalMode, amount, reason })
+    });
+    await loadAll();
+    closeModal();
+    showToast(modalMode === 'add' ? 'Dana ditambah.' : 'Dana dikeluarkan.');
+  }catch(e){
+    showError(e.message);
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function openAccModal(mode, accountId){
+  accModalMode = mode; accEditingId = accountId || null;
+  document.getElementById('accErrorMsg').style.display = 'none';
+  if(mode === 'new'){
+    document.getElementById('accModalTitle').textContent = 'Tempat simpanan baharu';
+    document.getElementById('accModalSub').textContent = 'Contoh: Tabung Haji, Simpanan Bank X';
+    document.getElementById('accNameInput').value = '';
+    document.getElementById('accConfirmBtn').textContent = 'Tambah';
+    document.getElementById('accDeleteBtn').style.display = 'none';
+  } else {
+    const acc = findAccount(accountId);
+    document.getElementById('accModalTitle').textContent = 'Edit tempat simpanan';
+    document.getElementById('accModalSub').textContent = 'Baki semasa: ' + fmt(acc.balance);
+    document.getElementById('accNameInput').value = acc.name;
+    document.getElementById('accConfirmBtn').textContent = 'Simpan';
+    document.getElementById('accDeleteBtn').style.display = 'inline-block';
+  }
+  document.getElementById('accOverlay').classList.add('show');
+  document.getElementById('accNameInput').focus();
+}
+function closeAccModal(){ document.getElementById('accOverlay').classList.remove('show'); }
+function showAccError(msg){ const el = document.getElementById('accErrorMsg'); el.textContent = msg; el.style.display = 'block'; }
+
+async function submitAccount(){
+  const name = document.getElementById('accNameInput').value.trim();
+  if(!name){ showAccError('Sila masukkan nama tempat simpanan.'); return; }
+  try{
+    if(accModalMode === 'new'){
+      await api('/accounts', { method: 'POST', body: JSON.stringify({ name }) });
+      showToast('Tempat simpanan ditambah.');
+    } else {
+      await api('/accounts/' + accEditingId, { method: 'PATCH', body: JSON.stringify({ name }) });
+      showToast('Nama dikemaskini.');
+    }
+    await loadAll();
+    closeAccModal();
+  }catch(e){
+    showAccError(e.message);
+  }
+}
+
+async function deleteAccount(){
+  try{
+    await api('/accounts/' + accEditingId, { method: 'DELETE' });
+    await loadAll();
+    closeAccModal();
+    showToast('Tempat simpanan dipadam.');
+  }catch(e){
+    showAccError(e.message);
+  }
+}
+
+function showToast(msg, isErr){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
+document.getElementById('accOverlay').addEventListener('click', (e) => { if(e.target.id === 'accOverlay') closeAccModal(); });
+
+loadAll();
+</script>
+</body>
+</html>
