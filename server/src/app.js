@@ -11,6 +11,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Logging asas — setiap request yang masuk akan tercatat dalam Render Logs
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    console.log(`${req.method} ${req.originalUrl} → ${res.statusCode} (${ms}ms)`);
+  });
+  next();
+});
+
 // API routes
 app.use('/api/accounts', accountsRouter);
 app.use('/api/transactions', transactionsRouter);
