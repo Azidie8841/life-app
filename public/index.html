@@ -52,6 +52,9 @@
   .acc-card .acc-name{font-size:13px; color:var(--text-soft);}
   .acc-edit-btn{background:none; border:none; padding:2px 4px; cursor:pointer; color:var(--text-faint); font-size:12px;}
   .acc-edit-btn:hover{color:var(--gold);}
+  .txn-actions{white-space:nowrap;}
+  .txn-actions .acc-edit-btn{margin-left:6px;}
+  .txn-actions .acc-edit-btn:first-child{margin-left:0;}
   .acc-card .acc-balance{font-family:'Source Serif 4', serif; font-size:24px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:15px;}
   .acc-card .acc-actions{display:flex; gap:8px;}
   .acc-card.add-card{display:flex; align-items:center; justify-content:center; border:1px dashed var(--card-line); background:transparent; cursor:pointer; min-height:106px; color:var(--text-faint); font-size:13px; font-weight:500; transition:border-color .15s ease, color .15s ease;}
@@ -228,7 +231,7 @@ const API_BASE = '/api';
 
 let accounts = [];
 let transactions = [];
-let modalMode = null, modalAccountId = null;
+let modalMode = null, modalAccountId = null, modalTxnId = null;
 let accModalMode = null, accEditingId = null;
 
 function fmt(n){
@@ -370,16 +373,20 @@ function renderLedger(){
       <td><span class="tag ${tagClass}">${tagText}</span></td>
       <td class="num">${sign} ${fmt(t.amount)}</td>
       <td class="num">${fmt(t.balance_after)}</td>
+      <td class="num txn-actions">
+        <button class="acc-edit-btn" onclick="openEditTxnModal('${t.id}')">Edit</button>
+        <button class="acc-edit-btn" onclick="deleteTxn('${t.id}')">Padam</button>
+      </td>
     </tr>`;
   }).join('');
   body.innerHTML = `<table>
-    <thead><tr><th>Tarikh &amp; sebab</th><th>Tempat simpanan</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Baki selepas</th></tr></thead>
+    <thead><tr><th>Tarikh &amp; sebab</th><th>Tempat simpanan</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Baki selepas</th><th class="num">Tindakan</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
 }
 
 function openModal(mode, accountId){
-  modalMode = mode; modalAccountId = accountId;
+  modalMode = mode; modalAccountId = accountId; modalTxnId = null;
   const acc = findAccount(accountId);
   document.getElementById('modalTitle').textContent = mode === 'add' ? 'Tambah dana' : 'Keluarkan dana';
   document.getElementById('modalSub').textContent = acc.name + ' — baki semasa: ' + fmt(acc.balance);
@@ -391,6 +398,33 @@ function openModal(mode, accountId){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('amountInput').focus();
 }
+
+function openEditTxnModal(txnId){
+  const t = transactions.find(x => x.id === txnId);
+  if(!t) return;
+  modalMode = 'edit'; modalTxnId = txnId; modalAccountId = t.account_id;
+  document.getElementById('modalTitle').textContent = 'Edit transaksi';
+  document.getElementById('modalSub').textContent = t.account_name + ' — ' + (t.type === 'add' ? 'Tambah' : 'Keluar');
+  document.getElementById('amountInput').value = t.amount;
+  document.getElementById('reasonInput').value = t.reason || '';
+  document.getElementById('reasonLabel').textContent = t.type === 'withdraw' ? 'Sebab keluarkan (wajib)' : 'Nota (pilihan)';
+  document.getElementById('confirmBtn').textContent = 'Simpan perubahan';
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('amountInput').focus();
+}
+
+async function deleteTxn(txnId){
+  if(!confirm('Padam transaksi ni? Baki akaun akan dikira semula.')) return;
+  try{
+    await api('/transactions/' + txnId, { method: 'DELETE' });
+    await loadAll();
+    showToast('Transaksi dipadam.');
+  }catch(e){
+    showToast(e.message, true);
+  }
+}
+
 function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
 function showError(msg){ const el = document.getElementById('errorMsg'); el.textContent = msg; el.style.display = 'block'; }
 
@@ -398,18 +432,28 @@ async function submitTransaction(){
   const amount = parseFloat(document.getElementById('amountInput').value);
   const reason = document.getElementById('reasonInput').value.trim();
   if(!amount || amount <= 0){ showError('Sila masukkan jumlah yang sah.'); return; }
-  if(modalMode === 'withdraw' && !reason){ showError('Sila nyatakan sebab pengeluaran.'); return; }
+  if((modalMode === 'withdraw' || (modalMode === 'edit' && modalTxnId && transactions.find(t=>t.id===modalTxnId)?.type === 'withdraw')) && !reason){
+    showError('Sila nyatakan sebab pengeluaran.'); return;
+  }
 
   const btn = document.getElementById('confirmBtn');
   btn.disabled = true;
   try{
-    await api('/transactions', {
-      method: 'POST',
-      body: JSON.stringify({ accountId: modalAccountId, type: modalMode, amount, reason })
-    });
+    if(modalMode === 'edit'){
+      await api('/transactions/' + modalTxnId, {
+        method: 'PATCH',
+        body: JSON.stringify({ amount, reason })
+      });
+      showToast('Transaksi dikemaskini.');
+    } else {
+      await api('/transactions', {
+        method: 'POST',
+        body: JSON.stringify({ accountId: modalAccountId, type: modalMode, amount, reason })
+      });
+      showToast(modalMode === 'add' ? 'Dana ditambah.' : 'Dana dikeluarkan.');
+    }
     await loadAll();
     closeModal();
-    showToast(modalMode === 'add' ? 'Dana ditambah.' : 'Dana dikeluarkan.');
   }catch(e){
     showError(e.message);
   }finally{
