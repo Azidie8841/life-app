@@ -22,7 +22,7 @@
     --coral-soft:rgba(194,102,90,0.14);
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
   .app{display:flex; min-height:100vh;}
   .sidebar{width:236px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--panel-line); padding:26px 16px;}
   .brand{padding:0 8px 22px; margin-bottom:14px; border-bottom:1px solid var(--panel-line);}
@@ -33,9 +33,14 @@
     .app{flex-direction:column;}
     .sidebar{width:100%; padding:14px 12px; display:flex; align-items:center;}
     .brand{border-bottom:none; border-right:1px solid var(--panel-line); padding:0 14px 0 4px; margin:0 10px 0 0;}
+    .content{padding:20px 14px 60px;}
+    .hero{padding:20px;}
+    .hero .amount{font-size:32px;}
   }
   .content{flex:1; min-width:0; padding:32px 32px 90px;}
   .content-inner{max-width:920px; margin:0 auto;}
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .table-scroll table{min-width:640px;}
   header.top{border-bottom:1px solid var(--card-line); padding-bottom:18px; margin-bottom:24px;}
   header.top h1{font-family:'Source Serif 4', serif; font-weight:600; font-size:22px; margin:0; letter-spacing:0.2px;}
   header.top .tagline{font-size:13px; color:var(--text-soft); margin-top:5px;}
@@ -44,6 +49,12 @@
   .hero .amount{font-family:'Source Serif 4', serif; font-weight:500; font-size:42px; line-height:1; color:var(--gold); font-variant-numeric:tabular-nums;}
   .hero .breakdown{text-align:right; font-size:13px; color:var(--text-soft); line-height:1.75;}
   .hero .breakdown b{color:var(--text); font-variant-numeric:tabular-nums; font-weight:600;}
+  .target-block{background:var(--card); border:1px solid var(--card-line); border-radius:5px; padding:18px 22px; margin-bottom:22px;}
+  .target-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .target-label{font-size:13.5px; color:var(--text-soft);}
+  .target-label b{color:var(--gold); font-variant-numeric:tabular-nums;}
+  .progress-track{width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:20px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--gold); border-radius:20px; transition:width .3s ease;}
   .section-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
   .section-head h2{font-family:'Source Serif 4', serif; font-size:14.5px; font-weight:600; margin:0; color:var(--text-soft);}
   .accounts{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin-bottom:28px;}
@@ -180,6 +191,14 @@
         <div class="breakdown" id="breakdown"></div>
       </div>
 
+      <div class="target-block" id="targetBlock">
+        <div class="target-head">
+          <span class="target-label" id="targetLabel">Tetapkan sasaran</span>
+          <button class="acc-edit-btn" onclick="openTargetModal()">Edit sasaran</button>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
       <div class="section-head"><h2>Tempat simpanan</h2></div>
       <div class="accounts" id="accountsGrid"></div>
 
@@ -221,6 +240,19 @@
   </div>
 </div>
 
+<div class="overlay" id="targetOverlay">
+  <div class="modal">
+    <h3>Tetapkan sasaran Dana Kecemasan</h3>
+    <div class="sub">Contoh: 6 bulan perbelanjaan bulanan kau</div>
+    <div class="field"><label>Sasaran (RM)</label><input type="number" id="targetInput" min="0" step="0.01" placeholder="30000"></div>
+    <div class="error-msg" id="targetErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeTargetModal()">Batal</button>
+      <button class="btn-primary" onclick="submitTarget()">Simpan</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -231,6 +263,7 @@ const API_BASE = '/api';
 
 let accounts = [];
 let transactions = [];
+let fundTarget = 0;
 let modalMode = null, modalAccountId = null, modalTxnId = null;
 let accModalMode = null, accEditingId = null;
 
@@ -312,10 +345,13 @@ async function logout(){
 
 async function loadAll(){
   try{
-    [accounts, transactions] = await Promise.all([
+    let targetResult;
+    [accounts, transactions, targetResult] = await Promise.all([
       api('/accounts'),
-      api('/transactions')
+      api('/transactions'),
+      api('/settings/target')
     ]);
+    fundTarget = targetResult.target || 0;
     render();
   }catch(e){
     document.getElementById('ledgerBody').innerHTML =
@@ -332,8 +368,52 @@ function render(){
   document.getElementById('breakdown').innerHTML = accounts
     .map(a => `${escapeHtml(a.name)}: <b>${fmt(a.balance)}</b>`).join('<br>');
 
+  renderTarget(total);
+
   renderAccounts();
   renderLedger();
+}
+
+function renderTarget(total){
+  const label = document.getElementById('targetLabel');
+  const fill = document.getElementById('progressFill');
+  if(!fundTarget || fundTarget <= 0){
+    label.innerHTML = 'Belum ada sasaran ditetapkan';
+    fill.style.width = '0%';
+    return;
+  }
+  const percent = Math.min(100, Math.round((total / fundTarget) * 100));
+  label.innerHTML = `<b>${percent}%</b> ke arah ${fmt(fundTarget)}`;
+  fill.style.width = percent + '%';
+}
+
+function openTargetModal(){
+  document.getElementById('targetInput').value = fundTarget || '';
+  document.getElementById('targetErrorMsg').style.display = 'none';
+  document.getElementById('targetOverlay').classList.add('show');
+  document.getElementById('targetInput').focus();
+}
+function closeTargetModal(){ document.getElementById('targetOverlay').classList.remove('show'); }
+
+async function submitTarget(){
+  const value = parseFloat(document.getElementById('targetInput').value);
+  const errEl = document.getElementById('targetErrorMsg');
+  if(isNaN(value) || value < 0){
+    errEl.textContent = 'Sila masukkan nombor 0 atau lebih.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try{
+    await api('/settings/target', { method: 'PUT', body: JSON.stringify({ target: value }) });
+    fundTarget = value;
+    const total = accounts.reduce((s,a) => s + parseFloat(a.balance || 0), 0);
+    renderTarget(total);
+    closeTargetModal();
+    showToast('Sasaran dikemaskini.');
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
 }
 
 function renderAccounts(){
@@ -379,10 +459,10 @@ function renderLedger(){
       </td>
     </tr>`;
   }).join('');
-  body.innerHTML = `<table>
+  body.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Tarikh &amp; sebab</th><th>Tempat simpanan</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Baki selepas</th><th class="num">Tindakan</th></tr></thead>
     <tbody>${rows}</tbody>
-  </table>`;
+  </table></div>`;
 }
 
 function openModal(mode, accountId){
@@ -523,6 +603,7 @@ function showToast(msg, isErr){
 
 document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
 document.getElementById('accOverlay').addEventListener('click', (e) => { if(e.target.id === 'accOverlay') closeAccModal(); });
+document.getElementById('targetOverlay').addEventListener('click', (e) => { if(e.target.id === 'targetOverlay') closeTargetModal(); });
 
 checkSession();
 </script>

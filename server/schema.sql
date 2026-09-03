@@ -1,6 +1,10 @@
 -- Skema pangkalan data untuk Dana Kecemasan
+-- Jalankan fail ini SEKALI sahaja untuk sediakan jadual (tables).
+
+-- Perlu untuk fungsi gen_random_uuid() di bawah
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- Setiap "tempat simpanan" (ASB 1, KWSP Akaun 3, dll.)
 CREATE TABLE IF NOT EXISTS accounts (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        TEXT NOT NULL,
@@ -8,10 +12,11 @@ CREATE TABLE IF NOT EXISTS accounts (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Setiap transaksi (tambah / keluar dana)
 CREATE TABLE IF NOT EXISTS transactions (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   account_id     UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-  account_name   TEXT NOT NULL,
+  account_name   TEXT NOT NULL,          -- disalin masa transaksi dibuat, supaya sejarah kekal walau nama akaun ditukar
   type           TEXT NOT NULL CHECK (type IN ('add', 'withdraw')),
   amount         NUMERIC(14,2) NOT NULL CHECK (amount > 0),
   reason         TEXT,
@@ -21,6 +26,19 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions (created_at DESC);
 
+-- Tetapan umum (key-value ringkas) — buat masa ni simpan sasaran Dana Kecemasan.
+-- Jadual ni sengaja "generic" (bukan lajur khas "target_amount") supaya senang
+-- tambah tetapan lain kemudian hari tanpa perlu ALTER TABLE lagi.
+CREATE TABLE IF NOT EXISTS settings (
+  key    TEXT PRIMARY KEY,
+  value  TEXT NOT NULL
+);
+
+INSERT INTO settings (key, value)
+VALUES ('emergency_fund_target', '0')
+ON CONFLICT (key) DO NOTHING;
+
+-- Data permulaan (boleh padam/ubah kalau tak nak)
 INSERT INTO accounts (name, balance)
 SELECT 'ASB 1', 0
 WHERE NOT EXISTS (SELECT 1 FROM accounts);

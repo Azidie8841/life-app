@@ -6,6 +6,7 @@ const session = require('express-session');
 
 const accountsRouter = require('./routes/accounts');
 const transactionsRouter = require('./routes/transactions');
+const settingsRouter = require('./routes/settings');
 const authRouter = require('./routes/auth');
 const { requireAuth } = require('./middleware/requireAuth');
 
@@ -48,6 +49,7 @@ app.use('/api/auth', authRouter);
 // API routes — DILINDUNGI, kena login dulu
 app.use('/api/accounts', requireAuth, accountsRouter);
 app.use('/api/transactions', requireAuth, transactionsRouter);
+app.use('/api/settings', requireAuth, settingsRouter);
 
 // Semak pelayan hidup ke tak — DevOps akan guna route macam ni untuk "health check"
 // Sengaja TAK dilindungi supaya UptimeRobot boleh check tanpa login.
