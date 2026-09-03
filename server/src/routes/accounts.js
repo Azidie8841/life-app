@@ -1,18 +1,19 @@
 const express = require('express');
 const { pool } = require('../db');
+const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
 // GET /api/accounts — senaraikan semua tempat simpanan
-router.get('/', async (req, res) => {
+router.get('/', asyncHandler(async (req, res) => {
   const result = await pool.query(
     'SELECT id, name, balance FROM accounts ORDER BY created_at ASC'
   );
   res.json(result.rows);
-});
+}));
 
 // POST /api/accounts — tambah tempat simpanan baharu
-router.post('/', async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
   const name = (req.body.name || '').trim();
   if (!name) {
     return res.status(400).json({ error: 'Nama tempat simpanan diperlukan.' });
@@ -31,10 +32,10 @@ router.post('/', async (req, res) => {
     [name]
   );
   res.status(201).json(result.rows[0]);
-});
+}));
 
 // PATCH /api/accounts/:id — tukar nama akaun
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   const name = (req.body.name || '').trim();
   if (!name) {
@@ -57,17 +58,16 @@ router.patch('/:id', async (req, res) => {
     return res.status(404).json({ error: 'Akaun tidak dijumpai.' });
   }
 
-  // kemaskini label akaun pada rekod transaksi lama, supaya sejarah kekal konsisten
   await pool.query(
     'UPDATE transactions SET account_name = $1 WHERE account_id = $2',
     [name, id]
   );
 
   res.json(result.rows[0]);
-});
+}));
 
 // DELETE /api/accounts/:id — padam akaun (hanya jika baki 0)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const countResult = await pool.query('SELECT COUNT(*) FROM accounts');
@@ -85,6 +85,6 @@ router.delete('/:id', async (req, res) => {
 
   await pool.query('DELETE FROM accounts WHERE id = $1', [id]);
   res.status(204).send();
-});
+}));
 
 module.exports = router;
