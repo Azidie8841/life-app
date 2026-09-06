@@ -38,6 +38,20 @@ INSERT INTO settings (key, value)
 VALUES ('emergency_fund_target', '0')
 ON CONFLICT (key) DO NOTHING;
 
+-- Modul Hasil (KewanganKu) — rekod pendapatan, berdiri sendiri (tiada pautan
+-- ke accounts/transactions Dana Kecemasan pada fasa ini).
+CREATE TABLE IF NOT EXISTS hasil (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sumber        TEXT NOT NULL,
+  kategori      TEXT NOT NULL,
+  jumlah        NUMERIC(14,2) NOT NULL CHECK (jumlah > 0),
+  tarikh        DATE NOT NULL,
+  nota          TEXT,
+  dicipta_pada  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_hasil_tarikh ON hasil (tarikh DESC);
+
 -- Data permulaan (boleh padam/ubah kalau tak nak)
 INSERT INTO accounts (name, balance)
 SELECT 'ASB 1', 0
