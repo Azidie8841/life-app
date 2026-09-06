@@ -97,7 +97,7 @@
   .modal .sub{font-size:12.5px; color:var(--text-soft); margin-bottom:18px;}
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:12.5px; color:var(--text-soft); margin-bottom:5px;}
-  .field input, .field textarea{width:100%; padding:9px 10px; border:1px solid var(--card-line); border-radius:3px; font-family:'Inter',sans-serif; font-size:14px; background:#0C1B2C; color:var(--text);}
+  .field input, .field select, .field textarea{width:100%; padding:9px 10px; border:1px solid var(--card-line); border-radius:3px; font-family:'Inter',sans-serif; font-size:14px; background:#0C1B2C; color:var(--text);}
   .field textarea{resize:vertical; min-height:56px;}
   .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
   .modal-actions.split{justify-content:space-between;}
@@ -163,6 +163,65 @@
     border-top:1px solid var(--panel-line);
   }
   .logout-link:hover{color:var(--coral);}
+
+  .month-nav{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-soft);}
+  .month-nav button{background:none; border:1px solid var(--card-line); color:var(--text-soft); border-radius:4px; width:26px; height:26px; cursor:pointer; font-size:14px;}
+  .month-nav button:hover{color:var(--gold); border-color:var(--gold);}
+  .month-nav .current{color:var(--text); font-weight:500; min-width:110px; text-align:center; display:inline-block;}
+
+  .compare-card{border-radius:5px; padding:12px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; background:var(--card); border:1px solid var(--card-line);}
+  .compare-card.over{border-color:var(--coral);}
+  .compare-card .figures{font-size:12px; color:var(--text-soft);}
+  .compare-card .figures b{color:var(--text); font-weight:600;}
+  .compare-card .figures .over{color:var(--coral); font-weight:600;}
+  .compare-card .warning{font-size:10.5px; color:var(--coral); font-weight:500;}
+
+  .dlb-panel{background:var(--card); border:1px solid var(--card-line); border-radius:5px; padding:12px 16px; margin-bottom:16px;}
+  .dlb-panel.locked{background:#3A1F1A; border-color:var(--coral);}
+  .dlb-top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+  .dlb-top .left{display:flex; align-items:flex-start; gap:10px;}
+  .dlb-top .title{font-size:12.5px; color:var(--text); font-weight:600; margin-bottom:3px;}
+  .dlb-top .desc{font-size:10.5px; color:#F0A99C;}
+  .dlb-top .desc.ok{color:var(--text-soft);}
+  .dlb-outstanding{margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);}
+  .dlb-outstanding .row{display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-soft); padding:4px 0;}
+  .dlb-outstanding .row button{font-size:10px; padding:4px 10px; border-radius:3px; background:var(--gold-soft); color:var(--gold); border:none; cursor:pointer;}
+
+  .action-buttons{display:flex; gap:8px;}
+  .btn-transfer{font-size:12px; padding:7px 12px; border-radius:4px; background:rgba(255,255,255,0.06); color:var(--text-soft); border:none; cursor:pointer; font-weight:500;}
+  .btn-borrow{font-size:11px; padding:7px 14px; border-radius:4px; background:var(--gold-soft); color:var(--gold); border:none; cursor:pointer; white-space:nowrap; font-weight:600;}
+  .btn-borrow:disabled{opacity:0.4; cursor:not-allowed; background:rgba(255,255,255,0.06); color:var(--text-faint);}
+
+  .box-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:12px; margin-bottom:14px;}
+  .box{background:var(--card); border:1px solid var(--card-line); border-radius:6px; padding:16px; cursor:pointer; transition:border-color .15s ease;}
+  .box:hover{border-color:var(--text-faint);}
+  .box.over{border-color:var(--coral);}
+  .box.filter-active{border-color:var(--gold); border-width:2px; padding:15px;}
+  .box.laras-locked{opacity:0.55;}
+  .box-head{display:flex; justify-content:space-between; margin-bottom:4px; align-items:flex-start;}
+  .box-head .name{font-size:12px; color:var(--text-soft);}
+  .badge{font-size:9px; padding:1px 7px; border-radius:20px; margin-left:6px; font-weight:600;}
+  .badge.wajib{background:var(--coral-soft); color:var(--coral);}
+  .badge.laras{background:var(--gold-soft); color:var(--gold);}
+  .box .amount{font-family:'Source Serif 4', serif; font-size:19px; font-weight:600; color:var(--text); margin:6px 0;}
+  .box .amount .of{font-size:11px; color:var(--text-faint); font-weight:400;}
+  .box .baki{font-size:10.5px; color:var(--text-soft);}
+  .box .baki.over{color:var(--coral);}
+
+  .add-box{border:1px dashed var(--card-line); border-radius:6px; padding:14px; text-align:center; color:var(--text-faint); font-size:12px; margin-bottom:16px; cursor:pointer;}
+  .add-box:hover{border-color:var(--gold); color:var(--gold);}
+
+  .waran-toggle{display:flex; align-items:center; gap:6px; margin-bottom:10px; cursor:pointer; color:var(--text-soft); font-size:12px; font-weight:500;}
+  .waran-toggle .arrow{font-size:9px; color:var(--text-faint); display:inline-block; transition:transform .15s ease;}
+  .waran-toggle.open .arrow{transform:rotate(90deg);}
+  .waran-list{background:var(--card); border:1px solid var(--card-line); border-radius:5px; padding:10px 14px; margin-bottom:16px; font-size:11.5px; color:var(--text-soft); display:none;}
+  .waran-list.open{display:block;}
+  .waran-list .row{padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);}
+  .waran-list .row:last-child{border-bottom:none;}
+  .waran-list .num{color:var(--text-faint); font-family:monospace; margin-right:8px;}
+
+  .filter-chip{font-size:11px; color:var(--gold); background:var(--gold-soft); padding:4px 10px; border-radius:20px; cursor:pointer; margin-left:8px;}
+  .filter-chip:hover{background:var(--coral-soft); color:var(--coral);}
 </style>
 </head>
 <body>
@@ -190,6 +249,7 @@
       <div class="subnav">
         <div class="pill active" data-subtab="danakecemasan" onclick="switchSubTab('danakecemasan')">Dana Kecemasan</div>
         <div class="pill" data-subtab="hasil" onclick="switchSubTab('hasil')">Hasil</div>
+        <div class="pill" data-subtab="perbelanjaan" onclick="switchSubTab('perbelanjaan')">Perbelanjaan</div>
       </div>
 
       <div class="subpanel active" id="subpanel-danakecemasan">
@@ -247,6 +307,45 @@
       </section>
       </div>
 
+      <div class="subpanel" id="subpanel-perbelanjaan">
+      <header class="top" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1>Perbelanjaan</h1>
+          <div class="tagline">Belanjawan bulanan mengikut kategori</div>
+        </div>
+        <div class="month-nav">
+          <button onclick="gerakBulanPerbelanjaan(-1)">‹</button>
+          <span class="current" id="pbBulanLabel"></span>
+          <button onclick="gerakBulanPerbelanjaan(1)">›</button>
+        </div>
+      </header>
+
+      <div id="pbCompareCard"></div>
+      <div id="pbDlbPanel"></div>
+
+      <div class="section-head">
+        <h2>Kotak belanjawan</h2>
+        <div class="action-buttons">
+          <button class="btn-transfer" onclick="bukaPindahModal()">⇄ Pindah Peruntukan</button>
+          <button class="btn-add" onclick="bukaPerbelanjaanTxnModal('new')">+ Tambah perbelanjaan</button>
+        </div>
+      </div>
+
+      <div class="box-grid" id="pbBoxGrid"></div>
+      <div class="add-box" onclick="bukaKategoriPbModal('new')">+ Tambah kategori</div>
+
+      <div class="waran-toggle" id="waranToggle" onclick="toggleWaranPb()">
+        <span class="arrow">▸</span>
+        <span id="waranTitlePb">Sejarah Waran</span>
+      </div>
+      <div class="waran-list" id="waranListPb"></div>
+
+      <div class="section-head"><h2>Rekod Transaksi</h2><span id="pbFilterIndicator"></span></div>
+      <section class="ledger">
+        <div id="pbLedgerBody"><div class="status">Memuatkan...</div></div>
+      </section>
+      </div>
+
     </div>
   </main>
 </div>
@@ -289,6 +388,94 @@
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeHasilModal()">Batal</button>
       <button class="btn-primary" id="hasilConfirmBtn" onclick="submitHasil()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Kategori Perbelanjaan -->
+<div class="overlay" id="katPbOverlay">
+  <div class="modal">
+    <h3 id="katPbModalTitle">Kategori baharu</h3>
+    <div class="field"><label>Nama kategori</label><input type="text" id="katPbNamaInput" placeholder="Contoh: Makanan"></div>
+    <div class="field">
+      <label>Jenis</label>
+      <select id="katPbJenisInput">
+        <option value="boleh_laras">Boleh Laras</option>
+        <option value="wajib">Wajib</option>
+      </select>
+    </div>
+    <div class="error-msg" id="katPbErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="katPbDeleteBtn" style="display:none;" onclick="padamKategoriPb()">Padam</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" onclick="closeModalPb('katPbOverlay')">Batal</button>
+        <button class="btn-primary" onclick="simpanKategoriPb()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit Kotak -->
+<div class="overlay" id="kotakPbOverlay">
+  <div class="modal">
+    <h3>Tetapkan kotak belanjawan</h3>
+    <div class="sub" id="kotakPbModalSub"></div>
+    <div class="field"><label>Jumlah belanjawan (RM)</label><input type="number" id="kotakPbJumlahInput" min="0" step="0.01"></div>
+    <div class="error-msg" id="kotakPbErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModalPb('kotakPbOverlay')">Batal</button>
+      <button class="btn-primary" onclick="simpanKotakPb()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Tambah/Edit Rekod Perbelanjaan -->
+<div class="overlay" id="pbTxnOverlay">
+  <div class="modal">
+    <h3 id="pbTxnModalTitle">Tambah perbelanjaan</h3>
+    <div class="field"><label>Kategori</label><select id="pbTxnKategoriInput"></select></div>
+    <div class="field"><label>Jumlah (RM)</label><input type="number" id="pbTxnJumlahInput" min="0" step="0.01"></div>
+    <div class="field"><label>Tarikh</label><input type="date" id="pbTxnTarikhInput"></div>
+    <div class="field"><label>Nota (pilihan)</label><textarea id="pbTxnNotaInput"></textarea></div>
+    <div class="error-msg" id="pbTxnErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="pbTxnDeleteBtn" style="display:none;" onclick="padamPerbelanjaanTxn()">Padam</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" onclick="closeModalPb('pbTxnOverlay')">Batal</button>
+        <button class="btn-primary" onclick="simpanPerbelanjaanTxn()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Waran Pindah -->
+<div class="overlay" id="pindahOverlay">
+  <div class="modal">
+    <h3>Pindah Peruntukan</h3>
+    <div class="field"><label>Dari kategori</label><select id="pindahDariInput"></select></div>
+    <div class="field"><label>Ke kategori</label><select id="pindahKeInput"></select></div>
+    <div class="field"><label>Jumlah (RM)</label><input type="number" id="pindahJumlahInput" min="0" step="0.01"></div>
+    <div class="field"><label>Sebab (wajib)</label><textarea id="pindahSebabInput"></textarea></div>
+    <div class="error-msg" id="pindahErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModalPb('pindahOverlay')">Batal</button>
+      <button class="btn-primary" onclick="simpanPindahPb()">Pindah</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pinjam Dana Luar Biasa -->
+<div class="overlay" id="pinjamOverlay">
+  <div class="modal">
+    <h3>Pinjam Dana Luar Biasa</h3>
+    <div class="sub" id="pinjamModalSub"></div>
+    <div class="field"><label>Kategori destinasi</label><select id="pinjamKategoriInput"></select></div>
+    <div class="field"><label>Jumlah (RM)</label><input type="number" id="pinjamJumlahInput" min="0" step="0.01"></div>
+    <div class="field"><label>Sebab (wajib)</label><textarea id="pinjamSebabInput"></textarea></div>
+    <div class="error-msg" id="pinjamErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModalPb('pinjamOverlay')">Batal</button>
+      <button class="btn-primary" onclick="simpanPinjamPb()">Pinjam</button>
     </div>
   </div>
 </div>
@@ -342,6 +529,7 @@ function switchSubTab(tab){
   document.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.pill[data-subtab="${tab}"]`).classList.add('active');
   document.getElementById('subpanel-' + tab).classList.add('active');
+  if(tab === 'perbelanjaan') loadPerbelanjaanData();
 }
 let modalMode = null, modalAccountId = null, modalTxnId = null;
 let accModalMode = null, accEditingId = null;
@@ -796,6 +984,452 @@ document.getElementById('overlay').addEventListener('click', (e) => { if(e.targe
 document.getElementById('accOverlay').addEventListener('click', (e) => { if(e.target.id === 'accOverlay') closeAccModal(); });
 document.getElementById('targetOverlay').addEventListener('click', (e) => { if(e.target.id === 'targetOverlay') closeTargetModal(); });
 document.getElementById('hasilOverlay').addEventListener('click', (e) => { if(e.target.id === 'hasilOverlay') closeHasilModal(); });
+
+// ================= Modul Perbelanjaan =================
+let pbBulanSemasa = (() => {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+})();
+let pbKategori = [];
+let pbRingkasan = { jumlah_belanjawan: 0, jumlah_dibelanjakan: 0, kategori: [] };
+let pbTransaksi = [];
+let pbWaran = [];
+let pbDlb = { had: 1000, bakiTersedia: 1000, adaTunggakanSebelumBulan: false, senaraiBelumDibayar: [] };
+let pbHasilBulan = 0;
+let pbKategoriFilterAktif = null;
+
+function namaBulanPb(bulan){
+  const [y,m] = bulan.split('-').map(Number);
+  return new Date(y, m-1, 1).toLocaleDateString('ms-MY', { month:'long', year:'numeric' });
+}
+
+function gerakBulanPerbelanjaan(delta){
+  const [y,m] = pbBulanSemasa.split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  pbBulanSemasa = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  pbKategoriFilterAktif = null;
+  loadPerbelanjaanData();
+}
+
+async function loadPerbelanjaanData(){
+  document.getElementById('pbBulanLabel').textContent = namaBulanPb(pbBulanSemasa);
+  try{
+    const [kategori, ringkasan, transaksi, waran, dlb, hasilRingkasan] = await Promise.all([
+      api('/kategori-perbelanjaan'),
+      api('/belanjawan/ringkasan?bulan=' + pbBulanSemasa),
+      api('/perbelanjaan?bulan=' + pbBulanSemasa),
+      api('/waran-pindah?bulan=' + pbBulanSemasa),
+      api('/dana-luar-biasa?bulan=' + pbBulanSemasa),
+      api('/hasil/ringkasan?bulan=' + pbBulanSemasa)
+    ]);
+    pbKategori = kategori;
+    pbRingkasan = ringkasan;
+    pbTransaksi = transaksi;
+    pbWaran = waran;
+    pbDlb = dlb;
+    pbHasilBulan = hasilRingkasan.jumlah_keseluruhan || 0;
+    renderPerbelanjaanAll();
+  }catch(e){
+    document.getElementById('pbLedgerBody').innerHTML =
+      `<div class="empty">Tak dapat sambung ke pelayan.<br>(${escapeHtml(e.message)})</div>`;
+  }
+}
+
+function renderPerbelanjaanAll(){
+  renderPbCompareCard();
+  renderPbDlbPanel();
+  renderPbBoxGrid();
+  renderPbWaranList();
+  renderPbLedger();
+}
+
+function findKategoriPb(id){ return pbKategori.find(k => k.id === id); }
+
+function renderPbCompareCard(){
+  const totalBelanjawan = pbRingkasan.jumlah_belanjawan || 0;
+  const over = totalBelanjawan > pbHasilBulan;
+  const el = document.getElementById('pbCompareCard');
+  el.innerHTML = `
+    <div class="compare-card ${over ? 'over' : ''}">
+      <div class="figures">Hasil bulan ini: <b>${fmt(pbHasilBulan)}</b> &middot; Belanjawan ditetapkan: <b class="${over?'over':''}">${fmt(totalBelanjawan)}</b></div>
+      ${over ? `<div class="warning">⚠ Belanjawan melebihi hasil sebanyak ${fmt(totalBelanjawan - pbHasilBulan)}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderPbDlbPanel(){
+  const locked = pbDlb.adaTunggakanSebelumBulan;
+  const semuaBelumBayar = pbDlb.senaraiBelumDibayar || [];
+  let desc;
+  if(locked){
+    const t = semuaBelumBayar.find(p => p.bulan_pinjam < pbBulanSemasa) || semuaBelumBayar[0];
+    desc = `Ada pinjaman ${fmt(t.jumlah)} (${escapeHtml(t.kategori_nama)}, ${namaBulanPb(t.bulan_pinjam)}) belum dibayar — wajib selesai sebelum pinjam baharu`;
+  } else if(semuaBelumBayar.length){
+    desc = `${semuaBelumBayar.length} pinjaman aktif — masih boleh pinjam lagi selagi dalam bulan yang sama`;
+  } else {
+    desc = 'Tiada pinjaman tertunggak';
+  }
+  let outstandingHtml = '';
+  if(semuaBelumBayar.length){
+    outstandingHtml = '<div class="dlb-outstanding">' + semuaBelumBayar.map(p => `
+      <div class="row">
+        <span>${escapeHtml(p.kategori_nama)} — ${fmt(p.jumlah)} (${namaBulanPb(p.bulan_pinjam)})</span>
+        <button onclick="bayarBalikPb('${p.id}')">Tandakan dibayar</button>
+      </div>
+    `).join('') + '</div>';
+  }
+  document.getElementById('pbDlbPanel').innerHTML = `
+    <div class="dlb-panel${locked ? ' locked' : ''}">
+      <div class="dlb-top">
+        <div class="left"><div>
+          <div class="title">Dana Luar Biasa: ${fmt(pbDlb.bakiTersedia)} tersedia / ${fmt(pbDlb.had)}</div>
+          <div class="desc${locked?'':' ok'}">${desc}</div>
+        </div></div>
+        <button class="btn-borrow" ${locked ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} onclick="bukaPinjamModal()">Pinjam${locked ? ' (disekat)' : ''}</button>
+      </div>
+      ${outstandingHtml}
+    </div>
+  `;
+}
+
+function wajibBelumTerisiPb(){
+  return pbRingkasan.kategori.filter(k => k.jenis === 'wajib' && k.belanjawan <= 0);
+}
+
+function renderPbBoxGrid(){
+  const belum = wajibBelumTerisiPb();
+  const larasLocked = belum.length > 0;
+  document.getElementById('pbBoxGrid').innerHTML = pbRingkasan.kategori.map(k => {
+    const over = k.dibelanjakan > k.belanjawan;
+    const pct = k.belanjawan > 0 ? Math.min(100, (k.dibelanjakan/k.belanjawan)*100) : (k.dibelanjakan > 0 ? 100 : 0);
+    const badgeClass = k.jenis === 'wajib' ? 'wajib' : 'laras';
+    const badgeText = k.jenis === 'wajib' ? 'Wajib' : 'Boleh Laras';
+    const bakiText = over ? `Lebih: ${fmt(k.dibelanjakan - k.belanjawan)}` : `Baki: ${fmt(k.belanjawan - k.dibelanjakan)}`;
+    const pinjamanHtml = k.pinjamanAktif > 0
+      ? `<div style="margin-top:6px; font-size:10px; color:var(--gold); background:var(--gold-soft); border-radius:4px; padding:3px 7px; display:inline-block;">🛟 Termasuk ${fmt(k.pinjamanAktif)} pinjaman belum dibayar</div>`
+      : '';
+    const isActive = pbKategoriFilterAktif === k.kategoriId;
+    const isLockedLaras = k.jenis === 'boleh_laras' && larasLocked;
+    const kotakLink = isLockedLaras
+      ? `<span class="edit" style="font-size:11px;color:var(--text-faint);cursor:not-allowed;" title="Isi kategori Wajib dulu">🔒 Kotak</span>`
+      : `<span class="edit" style="font-size:11px;color:var(--text-faint);cursor:pointer;" onclick="event.stopPropagation(); bukaKotakPbModal('${k.kategoriId}')">Kotak</span>`;
+    const lockedNoteHtml = isLockedLaras
+      ? `<div style="margin-top:6px; font-size:10px; color:var(--text-faint);">🔒 Isi kategori Wajib dulu sebelum kategori ni</div>` : '';
+    return `
+      <div class="box ${over?'over':''} ${isActive?'filter-active':''} ${isLockedLaras?'laras-locked':''}" onclick="filterKategoriPb('${k.kategoriId}')">
+        <div class="box-head">
+          <span class="name">${escapeHtml(k.nama)}<span class="badge ${badgeClass}">${badgeText}</span></span>
+          ${kotakLink}
+        </div>
+        <div class="amount">${fmt(k.dibelanjakan)} <span class="of">/ ${Math.round(k.belanjawan)}</span></div>
+        <div class="progress-track"><div class="progress-fill ${over?'':''}" style="width:${pct}%; background:${over?'var(--coral)':'var(--gold)'};"></div></div>
+        <div class="baki ${over?'over':''}">${bakiText}</div>
+        ${pinjamanHtml}
+        ${lockedNoteHtml}
+        <div style="margin-top:8px; font-size:10.5px; color:var(--text-faint); cursor:pointer;" onclick="event.stopPropagation(); bukaKategoriPbModal('edit','${k.kategoriId}')">Edit kategori</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterKategoriPb(kategoriId){
+  pbKategoriFilterAktif = (pbKategoriFilterAktif === kategoriId) ? null : kategoriId;
+  renderPbBoxGrid();
+  renderPbWaranList();
+  renderPbLedger();
+}
+
+function renderPbWaranList(){
+  let list = pbWaran;
+  if(pbKategoriFilterAktif){
+    list = list.filter(w => w.kategori_dari_id === pbKategoriFilterAktif || w.kategori_ke_id === pbKategoriFilterAktif);
+  }
+  document.getElementById('waranTitlePb').textContent = `Sejarah Waran (${list.length})`;
+  const el = document.getElementById('waranListPb');
+  if(!list.length){
+    el.innerHTML = `<div class="empty">${pbKategoriFilterAktif ? 'Tiada waran untuk kategori ni bulan ini.' : 'Belum ada waran bulan ini.'}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(w => {
+    const tarikh = new Date(w.dicipta_pada).toLocaleDateString('ms-MY',{day:'numeric',month:'short'});
+    const isPinjaman = w.jenis === 'pinjaman';
+    const verb = isPinjaman ? 'Pinjam' : 'Pindah';
+    const prefix = isPinjaman ? 'PJ' : 'PD';
+    const numColor = isPinjaman ? 'color:var(--gold);' : '';
+    const dariLabel = isPinjaman ? `<b style="color:var(--gold);">Dana Luar Biasa</b>` : escapeHtml(w.kategori_dari_nama);
+    return `<div class="row"><span class="num" style="${numColor}">#${prefix}-${String(w.nombor_siri).padStart(4,'0')}</span>${tarikh} — ${verb} ${fmt(w.jumlah)} dari ${dariLabel} ke ${escapeHtml(w.kategori_ke_nama)} — sebab: ${escapeHtml(w.sebab)}</div>`;
+  }).join('');
+}
+
+function toggleWaranPb(){
+  document.getElementById('waranToggle').classList.toggle('open');
+  document.getElementById('waranListPb').classList.toggle('open');
+}
+
+function renderPbLedger(){
+  const indEl = document.getElementById('pbFilterIndicator');
+  if(pbKategoriFilterAktif){
+    const kNama = findKategoriPb(pbKategoriFilterAktif) ? findKategoriPb(pbKategoriFilterAktif).nama : '';
+    indEl.innerHTML = `<span class="filter-chip" onclick="filterKategoriPb('${pbKategoriFilterAktif}')">Menapis: ${escapeHtml(kNama)} ✕</span>`;
+  } else {
+    indEl.innerHTML = '';
+  }
+
+  let belanja = pbTransaksi.map(p => ({ _jenis:'belanja', _sort:p.tarikh, data:p }));
+  let pinjaman = pbWaran.filter(w => w.jenis === 'pinjaman').map(w => ({ _jenis:'pinjaman', _sort:w.dicipta_pada, data:w }));
+  let pindah = pbWaran.filter(w => w.jenis === 'pindah').map(w => ({ _jenis:'pindah', _sort:w.dicipta_pada, data:w }));
+
+  if(pbKategoriFilterAktif){
+    belanja = belanja.filter(r => r.data.kategori_id === pbKategoriFilterAktif);
+    pinjaman = pinjaman.filter(r => r.data.kategori_ke_id === pbKategoriFilterAktif);
+    pindah = pindah.filter(r => r.data.kategori_dari_id === pbKategoriFilterAktif || r.data.kategori_ke_id === pbKategoriFilterAktif);
+  }
+
+  const rows = [...belanja, ...pinjaman, ...pindah].sort((a,b) => b._sort.localeCompare(a._sort));
+  const el = document.getElementById('pbLedgerBody');
+  if(!rows.length){
+    el.innerHTML = `<div class="empty">${pbKategoriFilterAktif ? 'Tiada rekod untuk kategori ni bulan ini.' : 'Belum ada transaksi bulan ini.'}</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-scroll"><table>
+    <thead><tr><th>Tarikh</th><th>Kategori</th><th class="num">Jumlah</th><th class="num">Tindakan</th></tr></thead>
+    <tbody>${rows.map(r => {
+      if(r._jenis === 'belanja'){
+        const p = r.data;
+        return `<tr>
+          <td>${new Date(p.tarikh).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'})}${p.nota?`<div class="reason">${escapeHtml(p.nota)}</div>`:''}</td>
+          <td><span class="tag add">${escapeHtml(p.kategori_nama)}</span></td>
+          <td class="num">${fmt(p.jumlah)}</td>
+          <td class="num txn-actions"><button class="acc-edit-btn" onclick="bukaPerbelanjaanTxnModal('edit','${p.id}')">Edit</button><button class="acc-edit-btn" onclick="padamPerbelanjaanTxnTerus('${p.id}')">Padam</button></td>
+        </tr>`;
+      } else if(r._jenis === 'pinjaman'){
+        const w = r.data;
+        return `<tr>
+          <td>${new Date(w.dicipta_pada).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'})}<div class="reason">${escapeHtml(w.sebab)}</div></td>
+          <td><span class="tag" style="background:var(--gold-soft); color:var(--gold);">🛟 Pinjaman → ${escapeHtml(w.kategori_ke_nama)}</span></td>
+          <td class="num" style="color:var(--gold);">+${fmt(w.jumlah)}</td>
+          <td class="num" style="color:var(--text-faint);">Lihat di Dana Luar Biasa</td>
+        </tr>`;
+      } else {
+        const w = r.data;
+        return `<tr>
+          <td>${new Date(w.dicipta_pada).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'})}<div class="reason">${escapeHtml(w.sebab)}</div></td>
+          <td><span class="tag" style="background:rgba(255,255,255,0.08); color:var(--text-soft);">⇄ ${escapeHtml(w.kategori_dari_nama)} → ${escapeHtml(w.kategori_ke_nama)}</span></td>
+          <td class="num" style="color:var(--text-soft);">${fmt(w.jumlah)}</td>
+          <td class="num" style="color:var(--text-faint);">Waran #PD-${String(w.nombor_siri).padStart(4,'0')}</td>
+        </tr>`;
+      }
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function closeModalPb(id){ document.getElementById(id).classList.remove('show'); }
+function isiDropdownKategoriPb(selectId){
+  document.getElementById(selectId).innerHTML = pbKategori.map(k => `<option value="${k.id}">${escapeHtml(k.nama)}</option>`).join('');
+}
+
+// ---- Kategori ----
+let katPbEditId = null;
+function bukaKategoriPbModal(mode, id){
+  katPbEditId = id || null;
+  document.getElementById('katPbErrorMsg').style.display = 'none';
+  if(mode === 'new'){
+    document.getElementById('katPbModalTitle').textContent = 'Kategori baharu';
+    document.getElementById('katPbNamaInput').value = '';
+    document.getElementById('katPbJenisInput').value = 'boleh_laras';
+    document.getElementById('katPbDeleteBtn').style.display = 'none';
+  } else {
+    const k = findKategoriPb(id);
+    document.getElementById('katPbModalTitle').textContent = 'Edit kategori';
+    document.getElementById('katPbNamaInput').value = k.nama;
+    document.getElementById('katPbJenisInput').value = k.jenis;
+    document.getElementById('katPbDeleteBtn').style.display = 'inline-block';
+  }
+  document.getElementById('katPbOverlay').classList.add('show');
+}
+async function simpanKategoriPb(){
+  const nama = document.getElementById('katPbNamaInput').value.trim();
+  const jenis = document.getElementById('katPbJenisInput').value;
+  const errEl = document.getElementById('katPbErrorMsg');
+  if(!nama){ errEl.textContent = 'Nama kategori diperlukan.'; errEl.style.display='block'; return; }
+  try{
+    if(katPbEditId){
+      await api('/kategori-perbelanjaan/' + katPbEditId, { method:'PATCH', body: JSON.stringify({ nama, jenis }) });
+    } else {
+      await api('/kategori-perbelanjaan', { method:'POST', body: JSON.stringify({ nama, jenis }) });
+    }
+    await loadPerbelanjaanData();
+    closeModalPb('katPbOverlay');
+    showToast('Kategori disimpan.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+async function padamKategoriPb(){
+  try{
+    await api('/kategori-perbelanjaan/' + katPbEditId, { method:'DELETE' });
+    await loadPerbelanjaanData();
+    closeModalPb('katPbOverlay');
+    showToast('Kategori dipadam.');
+  }catch(e){
+    const errEl = document.getElementById('katPbErrorMsg');
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+// ---- Kotak ----
+let kotakPbEditId = null;
+function bukaKotakPbModal(kategoriId){
+  const k = pbRingkasan.kategori.find(x => x.kategoriId === kategoriId);
+  if(k && k.jenis === 'boleh_laras' && wajibBelumTerisiPb().length){
+    showToast('Isi kategori Wajib dulu: ' + wajibBelumTerisiPb().map(x=>x.nama).join(', '), true);
+    return;
+  }
+  kotakPbEditId = kategoriId;
+  document.getElementById('kotakPbModalSub').textContent = k.nama + ' — ' + namaBulanPb(pbBulanSemasa);
+  document.getElementById('kotakPbJumlahInput').value = k.belanjawan;
+  document.getElementById('kotakPbErrorMsg').style.display = 'none';
+  document.getElementById('kotakPbOverlay').classList.add('show');
+}
+async function simpanKotakPb(){
+  const jumlah = parseFloat(document.getElementById('kotakPbJumlahInput').value);
+  const errEl = document.getElementById('kotakPbErrorMsg');
+  if(isNaN(jumlah) || jumlah < 0){ errEl.textContent = 'Sila masukkan nombor 0 atau lebih.'; errEl.style.display='block'; return; }
+  try{
+    await api('/belanjawan', { method:'PUT', body: JSON.stringify({ kategoriId: kotakPbEditId, bulan: pbBulanSemasa, jumlah }) });
+    await loadPerbelanjaanData();
+    closeModalPb('kotakPbOverlay');
+    showToast('Kotak dikemaskini.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+// ---- Rekod Perbelanjaan ----
+let pbTxnEditId = null;
+function bukaPerbelanjaanTxnModal(mode, id){
+  pbTxnEditId = id || null;
+  isiDropdownKategoriPb('pbTxnKategoriInput');
+  document.getElementById('pbTxnErrorMsg').style.display = 'none';
+  if(mode === 'new'){
+    document.getElementById('pbTxnModalTitle').textContent = 'Tambah perbelanjaan';
+    document.getElementById('pbTxnJumlahInput').value = '';
+    document.getElementById('pbTxnTarikhInput').value = pbBulanSemasa + '-01';
+    document.getElementById('pbTxnNotaInput').value = '';
+    document.getElementById('pbTxnDeleteBtn').style.display = 'none';
+  } else {
+    const p = pbTransaksi.find(x => x.id === id);
+    document.getElementById('pbTxnModalTitle').textContent = 'Edit perbelanjaan';
+    document.getElementById('pbTxnKategoriInput').value = p.kategori_id;
+    document.getElementById('pbTxnJumlahInput').value = p.jumlah;
+    document.getElementById('pbTxnTarikhInput').value = new Date(p.tarikh).toISOString().slice(0,10);
+    document.getElementById('pbTxnNotaInput').value = p.nota || '';
+    document.getElementById('pbTxnDeleteBtn').style.display = 'inline-block';
+  }
+  document.getElementById('pbTxnOverlay').classList.add('show');
+}
+async function simpanPerbelanjaanTxn(){
+  const kategoriId = document.getElementById('pbTxnKategoriInput').value;
+  const jumlah = parseFloat(document.getElementById('pbTxnJumlahInput').value);
+  const tarikh = document.getElementById('pbTxnTarikhInput').value;
+  const nota = document.getElementById('pbTxnNotaInput').value.trim();
+  const errEl = document.getElementById('pbTxnErrorMsg');
+  if(!jumlah || jumlah <= 0 || !tarikh){ errEl.textContent = 'Sila isi jumlah (> 0) dan tarikh.'; errEl.style.display='block'; return; }
+  try{
+    if(pbTxnEditId){
+      await api('/perbelanjaan/' + pbTxnEditId, { method:'PATCH', body: JSON.stringify({ kategoriId, jumlah, tarikh, nota }) });
+    } else {
+      await api('/perbelanjaan', { method:'POST', body: JSON.stringify({ kategoriId, jumlah, tarikh, nota }) });
+    }
+    await loadPerbelanjaanData();
+    closeModalPb('pbTxnOverlay');
+    showToast('Rekod perbelanjaan disimpan.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+async function padamPerbelanjaanTxn(){
+  try{
+    await api('/perbelanjaan/' + pbTxnEditId, { method:'DELETE' });
+    await loadPerbelanjaanData();
+    closeModalPb('pbTxnOverlay');
+    showToast('Rekod dipadam.');
+  }catch(e){ showToast(e.message, true); }
+}
+async function padamPerbelanjaanTxnTerus(id){
+  if(!confirm('Padam rekod perbelanjaan ni?')) return;
+  try{
+    await api('/perbelanjaan/' + id, { method:'DELETE' });
+    await loadPerbelanjaanData();
+    showToast('Rekod dipadam.');
+  }catch(e){ showToast(e.message, true); }
+}
+
+// ---- Waran Pindah ----
+function bukaPindahModal(){
+  isiDropdownKategoriPb('pindahDariInput');
+  isiDropdownKategoriPb('pindahKeInput');
+  document.getElementById('pindahJumlahInput').value = '';
+  document.getElementById('pindahSebabInput').value = '';
+  document.getElementById('pindahErrorMsg').style.display = 'none';
+  document.getElementById('pindahOverlay').classList.add('show');
+}
+async function simpanPindahPb(){
+  const kategoriDariId = document.getElementById('pindahDariInput').value;
+  const kategoriKeId = document.getElementById('pindahKeInput').value;
+  const jumlah = parseFloat(document.getElementById('pindahJumlahInput').value);
+  const sebab = document.getElementById('pindahSebabInput').value.trim();
+  const errEl = document.getElementById('pindahErrorMsg');
+  if(kategoriDariId === kategoriKeId){ errEl.textContent = 'Kategori asal dan destinasi mesti berbeza.'; errEl.style.display='block'; return; }
+  try{
+    await api('/waran-pindah', { method:'POST', body: JSON.stringify({ bulan: pbBulanSemasa, kategoriDariId, kategoriKeId, jumlah, sebab }) });
+    await loadPerbelanjaanData();
+    closeModalPb('pindahOverlay');
+    showToast('Waran Pindah berjaya direkod.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+// ---- Dana Luar Biasa ----
+function bukaPinjamModal(){
+  if(pbDlb.adaTunggakanSebelumBulan){
+    showToast('Ada pinjaman tertunggak dari bulan lepas — bayar dulu.', true);
+    return;
+  }
+  isiDropdownKategoriPb('pinjamKategoriInput');
+  document.getElementById('pinjamModalSub').textContent = `Baki tersedia: ${fmt(pbDlb.bakiTersedia)}`;
+  document.getElementById('pinjamJumlahInput').value = '';
+  document.getElementById('pinjamSebabInput').value = '';
+  document.getElementById('pinjamErrorMsg').style.display = 'none';
+  document.getElementById('pinjamOverlay').classList.add('show');
+}
+async function simpanPinjamPb(){
+  const kategoriId = document.getElementById('pinjamKategoriInput').value;
+  const jumlah = parseFloat(document.getElementById('pinjamJumlahInput').value);
+  const sebab = document.getElementById('pinjamSebabInput').value.trim();
+  const errEl = document.getElementById('pinjamErrorMsg');
+  try{
+    await api('/dana-luar-biasa/pinjam', { method:'POST', body: JSON.stringify({ kategoriId, bulan: pbBulanSemasa, jumlah, sebab }) });
+    await loadPerbelanjaanData();
+    closeModalPb('pinjamOverlay');
+    showToast('Pinjaman direkod (dengan Waran).');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+async function bayarBalikPb(pinjamanId){
+  if(!confirm('Tandakan pinjaman ni sebagai sudah dibayar?')) return;
+  try{
+    await api('/dana-luar-biasa/' + pinjamanId + '/bayar', { method:'POST', body: JSON.stringify({ bulan: pbBulanSemasa }) });
+    await loadPerbelanjaanData();
+    showToast('Pinjaman ditandakan dibayar.');
+  }catch(e){ showToast(e.message, true); }
+}
+
+['katPbOverlay','kotakPbOverlay','pbTxnOverlay','pindahOverlay','pinjamOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', (e) => { if(e.target.id === id) closeModalPb(id); });
+});
 
 checkSession();
 </script>
