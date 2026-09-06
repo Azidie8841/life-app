@@ -8,6 +8,11 @@ const accountsRouter = require('./routes/accounts');
 const transactionsRouter = require('./routes/transactions');
 const settingsRouter = require('./routes/settings');
 const hasilRouter = require('./routes/hasil');
+const kategoriPerbelanjaanRouter = require('./routes/kategori-perbelanjaan');
+const belanjawanRouter = require('./routes/belanjawan');
+const perbelanjaanRouter = require('./routes/perbelanjaan');
+const waranPindahRouter = require('./routes/waran-pindah');
+const danaLuarBiasaRouter = require('./routes/dana-luar-biasa');
 const authRouter = require('./routes/auth');
 const { requireAuth } = require('./middleware/requireAuth');
 
@@ -52,6 +57,11 @@ app.use('/api/accounts', requireAuth, accountsRouter);
 app.use('/api/transactions', requireAuth, transactionsRouter);
 app.use('/api/settings', requireAuth, settingsRouter);
 app.use('/api/hasil', requireAuth, hasilRouter);
+app.use('/api/kategori-perbelanjaan', requireAuth, kategoriPerbelanjaanRouter);
+app.use('/api/belanjawan', requireAuth, belanjawanRouter);
+app.use('/api/perbelanjaan', requireAuth, perbelanjaanRouter);
+app.use('/api/waran-pindah', requireAuth, waranPindahRouter);
+app.use('/api/dana-luar-biasa', requireAuth, danaLuarBiasaRouter);
 
 // Semak pelayan hidup ke tak — DevOps akan guna route macam ni untuk "health check"
 // Sengaja TAK dilindungi supaya UptimeRobot boleh check tanpa login.
