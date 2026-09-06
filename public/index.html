@@ -107,6 +107,14 @@
   .toast.err{background:var(--coral); color:#fff;}
   .status{font-size:12px; color:var(--text-faint); text-align:center; padding:14px;}
 
+  .subnav{display:flex; gap:6px; margin-bottom:18px;}
+  .subnav .pill{font-size:12.5px; padding:7px 14px; border-radius:20px; color:var(--text-soft); cursor:pointer; font-weight:500;}
+  .subnav .pill.active{background:var(--gold-soft); color:var(--gold);}
+  .subpanel{display:none;}
+  .subpanel.active{display:block;}
+  .summary-mini{font-size:12.5px; color:var(--text-soft); line-height:1.8;}
+  .summary-mini b{color:var(--text); font-variant-numeric:tabular-nums; font-weight:600;}
+
   .login-screen{
     position:fixed; inset:0;
     background:var(--bg);
@@ -178,6 +186,13 @@
 
   <main class="content">
     <div class="content-inner">
+
+      <div class="subnav">
+        <div class="pill active" data-subtab="danakecemasan" onclick="switchSubTab('danakecemasan')">Dana Kecemasan</div>
+        <div class="pill" data-subtab="hasil" onclick="switchSubTab('hasil')">Hasil</div>
+      </div>
+
+      <div class="subpanel active" id="subpanel-danakecemasan">
       <header class="top">
         <h1>Dana Kecemasan</h1>
         <div class="tagline" id="tagline">Simpanan kecemasan merentasi semua akaun</div>
@@ -206,6 +221,32 @@
         <div class="ledger-head"><h2>Rekod transaksi</h2></div>
         <div id="ledgerBody"><div class="status">Memuatkan...</div></div>
       </section>
+      </div>
+
+      <div class="subpanel" id="subpanel-hasil">
+      <header class="top">
+        <h1>Hasil</h1>
+        <div class="tagline">Rekod pendapatan dan ringkasan bulanan</div>
+      </header>
+
+      <div class="hero">
+        <div>
+          <div class="label" id="hasilBulanLabel">Jumlah hasil bulan ini</div>
+          <div class="amount" id="hasilTotal">RM 0.00</div>
+        </div>
+        <div class="summary-mini" id="hasilKategoriBreakdown"></div>
+      </div>
+
+      <div class="section-head">
+        <h2>Rekod hasil</h2>
+        <button class="btn-add" onclick="openHasilModal('new')">+ Tambah rekod</button>
+      </div>
+
+      <section class="ledger">
+        <div id="hasilBody"><div class="status">Memuatkan...</div></div>
+      </section>
+      </div>
+
     </div>
   </main>
 </div>
@@ -220,6 +261,34 @@
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal()">Batal</button>
       <button class="btn-primary" id="confirmBtn" onclick="submitTransaction()">Sahkan</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="hasilOverlay">
+  <div class="modal">
+    <h3 id="hasilModalTitle">Tambah rekod hasil</h3>
+    <div class="sub">Rekod satu sumber pendapatan</div>
+    <div class="field"><label>Sumber</label><input type="text" id="hasilSumberInput" placeholder="Contoh: Syarikat ABC"></div>
+    <div class="field">
+      <label>Kategori</label>
+      <input type="text" id="hasilKategoriInput" list="hasilKategoriList" placeholder="Contoh: Gaji">
+      <datalist id="hasilKategoriList">
+        <option value="Gaji"></option>
+        <option value="Sampingan"></option>
+        <option value="Bonus"></option>
+        <option value="Lain-lain"></option>
+      </datalist>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <div class="field" style="flex:1;"><label>Jumlah (RM)</label><input type="number" id="hasilJumlahInput" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field" style="flex:1;"><label>Tarikh</label><input type="date" id="hasilTarikhInput"></div>
+    </div>
+    <div class="field"><label>Nota (pilihan)</label><textarea id="hasilNotaInput" placeholder="Nota tambahan..."></textarea></div>
+    <div class="error-msg" id="hasilErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeHasilModal()">Batal</button>
+      <button class="btn-primary" id="hasilConfirmBtn" onclick="submitHasil()">Simpan</button>
     </div>
   </div>
 </div>
@@ -264,6 +333,16 @@ const API_BASE = '/api';
 let accounts = [];
 let transactions = [];
 let fundTarget = 0;
+let hasilRecords = [];
+let hasilSummary = { jumlah_keseluruhan: 0, mengikut_kategori: [] };
+let hasilModalMode = null, hasilEditingId = null;
+
+function switchSubTab(tab){
+  document.querySelectorAll('.subnav .pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.pill[data-subtab="${tab}"]`).classList.add('active');
+  document.getElementById('subpanel-' + tab).classList.add('active');
+}
 let modalMode = null, modalAccountId = null, modalTxnId = null;
 let accModalMode = null, accEditingId = null;
 
@@ -346,13 +425,16 @@ async function logout(){
 async function loadAll(){
   try{
     let targetResult;
-    [accounts, transactions, targetResult] = await Promise.all([
+    [accounts, transactions, targetResult, hasilRecords, hasilSummary] = await Promise.all([
       api('/accounts'),
       api('/transactions'),
-      api('/settings/target')
+      api('/settings/target'),
+      api('/hasil'),
+      api('/hasil/ringkasan')
     ]);
     fundTarget = targetResult.target || 0;
     render();
+    renderHasil();
   }catch(e){
     document.getElementById('ledgerBody').innerHTML =
       `<div class="empty">Tak dapat sambung ke pelayan. Pastikan backend berjalan.<br>(${escapeHtml(e.message)})</div>`;
@@ -463,6 +545,115 @@ function renderLedger(){
     <thead><tr><th>Tarikh &amp; sebab</th><th>Tempat simpanan</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Baki selepas</th><th class="num">Tindakan</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+}
+
+// ---------- Modul Hasil ----------
+function renderHasil(){
+  document.getElementById('hasilTotal').textContent = fmt(hasilSummary.jumlah_keseluruhan || 0);
+  const bulanLabel = hasilSummary.bulan
+    ? new Date(hasilSummary.bulan + '-01').toLocaleDateString('ms-MY', { month:'long', year:'numeric' })
+    : '';
+  document.getElementById('hasilBulanLabel').textContent = bulanLabel
+    ? `Jumlah hasil ${bulanLabel}`
+    : 'Jumlah hasil bulan ini';
+
+  const kategoriList = hasilSummary.mengikut_kategori || [];
+  document.getElementById('hasilKategoriBreakdown').innerHTML = kategoriList.length
+    ? kategoriList.map(k => `${escapeHtml(k.kategori)}: <b>${fmt(k.jumlah)}</b>`).join('<br>')
+    : 'Belum ada rekod bulan ini';
+
+  const body = document.getElementById('hasilBody');
+  if(!hasilRecords.length){
+    body.innerHTML = '<div class="empty">Belum ada rekod Hasil. Klik "+ Tambah rekod" untuk mula.</div>';
+    return;
+  }
+  const rows = hasilRecords.map(h => {
+    const dateLabel = new Date(h.tarikh).toLocaleDateString('ms-MY', { day:'numeric', month:'short', year:'numeric' });
+    const notaHtml = h.nota ? `<div class="reason">${escapeHtml(h.nota)}</div>` : '';
+    return `<tr>
+      <td>${dateLabel}</td>
+      <td>${escapeHtml(h.sumber)}${notaHtml}</td>
+      <td><span class="tag add">${escapeHtml(h.kategori)}</span></td>
+      <td class="num">${fmt(h.jumlah)}</td>
+      <td class="num txn-actions">
+        <button class="acc-edit-btn" onclick="openHasilModal('edit','${h.id}')">Edit</button>
+        <button class="acc-edit-btn" onclick="deleteHasil('${h.id}')">Padam</button>
+      </td>
+    </tr>`;
+  }).join('');
+  body.innerHTML = `<div class="table-scroll"><table>
+    <thead><tr><th>Tarikh</th><th>Sumber</th><th>Kategori</th><th class="num">Jumlah</th><th class="num">Tindakan</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function openHasilModal(mode, id){
+  hasilModalMode = mode; hasilEditingId = id || null;
+  document.getElementById('hasilErrorMsg').style.display = 'none';
+  if(mode === 'new'){
+    document.getElementById('hasilModalTitle').textContent = 'Tambah rekod hasil';
+    document.getElementById('hasilSumberInput').value = '';
+    document.getElementById('hasilKategoriInput').value = '';
+    document.getElementById('hasilJumlahInput').value = '';
+    document.getElementById('hasilTarikhInput').value = new Date().toISOString().slice(0,10);
+    document.getElementById('hasilNotaInput').value = '';
+  } else {
+    const h = hasilRecords.find(x => x.id === id);
+    document.getElementById('hasilModalTitle').textContent = 'Edit rekod hasil';
+    document.getElementById('hasilSumberInput').value = h.sumber;
+    document.getElementById('hasilKategoriInput').value = h.kategori;
+    document.getElementById('hasilJumlahInput').value = h.jumlah;
+    document.getElementById('hasilTarikhInput').value = new Date(h.tarikh).toISOString().slice(0,10);
+    document.getElementById('hasilNotaInput').value = h.nota || '';
+  }
+  document.getElementById('hasilOverlay').classList.add('show');
+  document.getElementById('hasilSumberInput').focus();
+}
+function closeHasilModal(){ document.getElementById('hasilOverlay').classList.remove('show'); }
+
+async function submitHasil(){
+  const sumber = document.getElementById('hasilSumberInput').value.trim();
+  const kategori = document.getElementById('hasilKategoriInput').value.trim();
+  const jumlah = parseFloat(document.getElementById('hasilJumlahInput').value);
+  const tarikh = document.getElementById('hasilTarikhInput').value;
+  const nota = document.getElementById('hasilNotaInput').value.trim();
+  const errEl = document.getElementById('hasilErrorMsg');
+
+  if(!sumber || !kategori || !jumlah || jumlah <= 0 || !tarikh){
+    errEl.textContent = 'Sila isi sumber, kategori, jumlah (> 0), dan tarikh.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('hasilConfirmBtn');
+  btn.disabled = true;
+  try{
+    if(hasilModalMode === 'new'){
+      await api('/hasil', { method: 'POST', body: JSON.stringify({ sumber, kategori, jumlah, tarikh, nota }) });
+      showToast('Rekod hasil ditambah.');
+    } else {
+      await api('/hasil/' + hasilEditingId, { method: 'PATCH', body: JSON.stringify({ sumber, kategori, jumlah, tarikh, nota }) });
+      showToast('Rekod hasil dikemaskini.');
+    }
+    await loadAll();
+    closeHasilModal();
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function deleteHasil(id){
+  if(!confirm('Padam rekod hasil ni?')) return;
+  try{
+    await api('/hasil/' + id, { method: 'DELETE' });
+    await loadAll();
+    showToast('Rekod hasil dipadam.');
+  }catch(e){
+    showToast(e.message, true);
+  }
 }
 
 function openModal(mode, accountId){
@@ -604,6 +795,7 @@ function showToast(msg, isErr){
 document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
 document.getElementById('accOverlay').addEventListener('click', (e) => { if(e.target.id === 'accOverlay') closeAccModal(); });
 document.getElementById('targetOverlay').addEventListener('click', (e) => { if(e.target.id === 'targetOverlay') closeTargetModal(); });
+document.getElementById('hasilOverlay').addEventListener('click', (e) => { if(e.target.id === 'hasilOverlay') closeHasilModal(); });
 
 checkSession();
 </script>
