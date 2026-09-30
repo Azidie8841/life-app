@@ -1,7 +1,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const asyncHandler = require('../utils/asyncHandler');
-const { wajibBelumTerisi, pinjamanAktifDalamKotak } = require('../utils/perbelanjaanHelpers');
+const { wajibBelumTerisi, pinjamanAktifDalamKotak, semakHadKumpulan } = require('../utils/perbelanjaanHelpers');
 
 const router = express.Router();
 
@@ -65,6 +65,14 @@ router.put('/', asyncHandler(async (req, res) => {
       return res.status(400).json({
         error: `Tak boleh set bawah RM${pinjamanAktif.toFixed(2)} — jumlah ni termasuk pinjaman Dana Luar Biasa yang belum dibayar. Bayar balik pinjaman dulu.`
       });
+    }
+
+    // Had kumpulan — kotak kategori ni tak boleh buatkan jumlah SELURUH kumpulan
+    // (kalau kategori ni ahli kumpulan) melebihi bajet kumpulan (peratus x Hasil).
+    const ralatKumpulan = await semakHadKumpulan(client, kategoriId, jml, bulan);
+    if (ralatKumpulan) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: ralatKumpulan });
     }
 
     const result = await client.query(

@@ -211,6 +211,47 @@
   .add-box{border:1px dashed var(--card-line); border-radius:6px; padding:14px; text-align:center; color:var(--text-faint); font-size:12px; margin-bottom:16px; cursor:pointer;}
   .add-box:hover{border-color:var(--gold); color:var(--gold);}
 
+  /* ---- Jadual Kotak Belanjawan + Kumpulan ---- */
+  .kumpulan-block{margin-bottom:14px; background:var(--card); border:1px solid var(--card-line); border-radius:6px; overflow:hidden;}
+  .kumpulan-bar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; padding:9px 20px; background:rgba(255,255,255,0.03); font-size:12px; font-weight:600; color:var(--text); border-bottom:1px solid var(--card-line);}
+  .kumpulan-bar.clickable{cursor:pointer;}
+  .kumpulan-bar.clickable:hover{background:var(--gold-soft);}
+  .kumpulan-bar.ungrouped{color:var(--text-faint); font-weight:500;}
+  .kumpulan-bar .kumpulan-angka{font-size:10.5px; color:var(--text-soft); font-weight:400;}
+  .kumpulan-block table{margin:0;}
+  .kotak-row{cursor:pointer;}
+  .kotak-row:hover{background:rgba(255,255,255,0.02);}
+  .kotak-row.filter-active{background:var(--gold-soft);}
+  .kotak-row.locked{opacity:0.5;}
+  .kotak-row .baki-over{color:var(--coral); font-weight:600;}
+  .kotak-row .pinjaman-note{margin-left:6px; font-size:9.5px; color:var(--gold); background:var(--gold-soft); border-radius:4px; padding:2px 6px;}
+  .kotak-actions{display:flex; gap:4px; justify-content:flex-end; align-items:center; flex-wrap:wrap;}
+  .icon-btn{background:none; border:1px solid var(--card-line); border-radius:4px; padding:3px 7px; font-size:12px; cursor:pointer; color:var(--text-soft);}
+  .icon-btn:hover{border-color:var(--gold); color:var(--gold);}
+  .icon-btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .waran-select{background:var(--panel); border:1px solid var(--card-line); border-radius:4px; padding:3px 4px; font-size:11px; color:var(--text-soft); cursor:pointer;}
+  .add-kategori-row{padding:12px 20px; text-align:center; color:var(--text-faint); font-size:12px; cursor:pointer; border-top:1px dashed var(--card-line);}
+  .add-kategori-row:hover{color:var(--gold);}
+
+  .bajet-banner{border-radius:5px; padding:12px 16px; margin-bottom:12px; background:var(--coral-soft); border:1px solid var(--coral);}
+  .bajet-banner .figures{font-size:12px; color:var(--text); font-weight:600;}
+  .bajet-banner .warning{font-size:10.5px; color:var(--coral); margin-top:3px;}
+  .bajet-banner .btn-ghost{margin-top:8px;}
+
+  /* ---- Pintasan Perbelanjaan ---- */
+  .pintasan-bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .pintasan-pill{background:var(--card); border:1px solid var(--card-line); border-radius:20px; padding:6px 14px; font-size:11.5px; color:var(--text-soft); cursor:pointer;}
+  .pintasan-pill:hover{border-color:var(--gold); color:var(--gold);}
+  .pintasan-add{background:none; border:1px dashed var(--card-line); border-radius:20px; padding:6px 14px; font-size:11.5px; color:var(--text-faint); cursor:pointer;}
+  .pintasan-add:hover{border-color:var(--gold); color:var(--gold);}
+
+  /* ---- Sejarah kategori ---- */
+  .sejarah-table{width:100%; border-collapse:collapse; margin-top:8px;}
+  .sejarah-table th{text-align:right; font-size:11px; color:var(--text-faint); padding:6px 8px; border-bottom:1px solid var(--card-line);}
+  .sejarah-table td{padding:6px 8px; font-size:13px; text-align:right; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text);}
+  .sejarah-table th:first-child, .sejarah-table td:first-child{text-align:left;}
+  .sejarah-table .baki-over{color:var(--coral); font-weight:600;}
+
   .waran-toggle{display:flex; align-items:center; gap:6px; margin-bottom:10px; cursor:pointer; color:var(--text-soft); font-size:12px; font-weight:500;}
   .waran-toggle .arrow{font-size:9px; color:var(--text-faint); display:inline-block; transition:transform .15s ease;}
   .waran-toggle.open .arrow{transform:rotate(90deg);}
@@ -320,19 +361,21 @@
         </div>
       </header>
 
+      <div id="pbBajetBanner"></div>
       <div id="pbCompareCard"></div>
       <div id="pbDlbPanel"></div>
+
+      <div class="pintasan-bar" id="pbPintasanBar"></div>
 
       <div class="section-head">
         <h2>Kotak belanjawan</h2>
         <div class="action-buttons">
-          <button class="btn-transfer" onclick="bukaPindahModal()">⇄ Pindah Peruntukan</button>
-          <button class="btn-add" onclick="bukaPerbelanjaanTxnModal('new')">+ Tambah perbelanjaan</button>
+          <button class="btn-transfer" id="pbBtnPindah" onclick="bukaPindahModal()">⇄ Pindah Peruntukan</button>
+          <button class="btn-add" id="pbBtnTambah" onclick="bukaPerbelanjaanTxnModal('new')">+ Tambah perbelanjaan</button>
         </div>
       </div>
 
-      <div class="box-grid" id="pbBoxGrid"></div>
-      <div class="add-box" onclick="bukaKategoriPbModal('new')">+ Tambah kategori</div>
+      <div id="pbKotakBody"></div>
 
       <div class="waran-toggle" id="waranToggle" onclick="toggleWaranPb()">
         <span class="arrow">▸</span>
@@ -404,12 +447,83 @@
         <option value="wajib">Wajib</option>
       </select>
     </div>
+    <div class="field">
+      <label>Kumpulan (pilihan — untuk susun kategori bawah tajuk besar)</label>
+      <input type="text" id="katPbKumpulanInput" list="pbKumpulanList" placeholder="Contoh: Keperluan, Kehendak, Masa Depan">
+      <datalist id="pbKumpulanList"></datalist>
+    </div>
     <div class="error-msg" id="katPbErrorMsg"></div>
     <div class="modal-actions">
       <button class="btn-danger" id="katPbDeleteBtn" style="display:none;" onclick="padamKategoriPb()">Padam</button>
       <div style="display:flex; gap:8px;">
         <button class="btn-ghost" onclick="closeModalPb('katPbOverlay')">Batal</button>
         <button class="btn-primary" onclick="simpanKategoriPb()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Urus Kumpulan -->
+<div class="overlay" id="kumpulanPbOverlay">
+  <div class="modal">
+    <h3>Urus kumpulan</h3>
+    <div class="sub">Semua kategori dalam kumpulan ni ikut tetapan ini</div>
+    <div class="field"><label>Nama kumpulan</label><input type="text" id="kumpulanPbNamaInput"></div>
+    <div class="field"><label>Peratus daripada Hasil bulanan (%)</label><input type="number" id="kumpulanPbPeratusInput" min="0" max="100" step="1" oninput="syncKumpulanPbDariPeratus()"></div>
+    <div class="field"><label>Atau isi terus Bajet (RM) — peratus akan dikira automatik</label><input type="number" id="kumpulanPbBajetInput" min="0" step="0.01" oninput="syncKumpulanPbDariBajet()"></div>
+    <div class="error-msg" id="kumpulanPbErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="padamKumpulanPb()">Padam Kumpulan</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" onclick="closeModalPb('kumpulanPbOverlay')">Batal</button>
+        <button class="btn-primary" onclick="simpanKumpulanPb()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Sejarah kategori -->
+<div class="overlay" id="sejarahPbOverlay">
+  <div class="modal">
+    <h3 id="sejarahPbTitle">Sejarah kategori</h3>
+    <div class="sub">Bajet vs penggunaan, 6 bulan terkini</div>
+    <table class="sejarah-table" id="sejarahPbTable"></table>
+    <div class="modal-actions">
+      <div style="display:flex; gap:8px; margin-left:auto;">
+        <button class="btn-ghost" onclick="closeModalPb('sejarahPbOverlay')">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Kategori tak cukup baki (boleh dibuka BERSARANG di atas pbTxnOverlay -
+     z-index lebih tinggi supaya butang dia tak tersorok di belakang modal induk) -->
+<div class="overlay" id="katTakCukupPbOverlay" style="z-index:11;">
+  <div class="modal">
+    <h3>Baki kategori tak cukup</h3>
+    <div class="sub" id="katTakCukupPbMsg"></div>
+    <div class="modal-actions">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-ghost" onclick="closeModalPb('katTakCukupPbOverlay')">Batal</button>
+        <button class="btn-transfer" onclick="dariKatTakCukupPbBukaPindah()">⇄ Pindah Peruntukan dari kategori lain</button>
+        <button class="btn-borrow" onclick="dariKatTakCukupPbBukaPinjam()">🛟 Pinjam Dana Luar Biasa</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pintasan -->
+<div class="overlay" id="pintasanPbOverlay">
+  <div class="modal">
+    <h3 id="pintasanPbModalTitle">Pintasan baharu</h3>
+    <div class="field"><label>Label</label><input type="text" id="pintasanPbLabelInput" placeholder="Contoh: Makan Tengahari"></div>
+    <div class="field"><label>Kategori</label><select id="pintasanPbKategoriInput"></select></div>
+    <div class="error-msg" id="pintasanPbErrorMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="pintasanPbDeleteBtn" style="display:none;" onclick="padamPintasanPb()">Padam</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-ghost" onclick="closeModalPb('pintasanPbOverlay')">Batal</button>
+        <button class="btn-primary" onclick="simpanPintasanPb()">Simpan</button>
       </div>
     </div>
   </div>
@@ -552,7 +666,9 @@ async function api(path, options){
   }
   const data = res.status === 204 ? null : await res.json();
   if(!res.ok){
-    throw new Error((data && data.error) || 'Ralat tidak diketahui.');
+    const err = new Error((data && data.error) || 'Ralat tidak diketahui.');
+    err.data = data; // sesetengah ralat (contoh kategori tak cukup baki) bawa medan tambahan
+    throw err;
   }
   return data;
 }
@@ -997,6 +1113,8 @@ let pbWaran = [];
 let pbDlb = { had: 1000, bakiTersedia: 1000, adaTunggakanSebelumBulan: false, senaraiBelumDibayar: [] };
 let pbHasilBulan = 0;
 let pbKategoriFilterAktif = null;
+let pbKumpulan = [];
+let pbPintasan = [];
 
 function namaBulanPb(bulan){
   const [y,m] = bulan.split('-').map(Number);
@@ -1014,13 +1132,15 @@ function gerakBulanPerbelanjaan(delta){
 async function loadPerbelanjaanData(){
   document.getElementById('pbBulanLabel').textContent = namaBulanPb(pbBulanSemasa);
   try{
-    const [kategori, ringkasan, transaksi, waran, dlb, hasilRingkasan] = await Promise.all([
+    const [kategori, ringkasan, transaksi, waran, dlb, hasilRingkasan, kumpulan, pintasan] = await Promise.all([
       api('/kategori-perbelanjaan'),
       api('/belanjawan/ringkasan?bulan=' + pbBulanSemasa),
       api('/perbelanjaan?bulan=' + pbBulanSemasa),
       api('/waran-pindah?bulan=' + pbBulanSemasa),
       api('/dana-luar-biasa?bulan=' + pbBulanSemasa),
-      api('/hasil/ringkasan?bulan=' + pbBulanSemasa)
+      api('/hasil/ringkasan?bulan=' + pbBulanSemasa),
+      api('/kumpulan'),
+      api('/pintasan')
     ]);
     pbKategori = kategori;
     pbRingkasan = ringkasan;
@@ -1028,6 +1148,8 @@ async function loadPerbelanjaanData(){
     pbWaran = waran;
     pbDlb = dlb;
     pbHasilBulan = hasilRingkasan.jumlah_keseluruhan || 0;
+    pbKumpulan = kumpulan;
+    pbPintasan = pintasan;
     renderPerbelanjaanAll();
   }catch(e){
     document.getElementById('pbLedgerBody').innerHTML =
@@ -1036,14 +1158,82 @@ async function loadPerbelanjaanData(){
 }
 
 function renderPerbelanjaanAll(){
+  renderPbBajetBanner();
   renderPbCompareCard();
   renderPbDlbPanel();
-  renderPbBoxGrid();
+  renderPbPintasanBar();
+  renderPbKotakBody();
   renderPbWaranList();
   renderPbLedger();
 }
 
 function findKategoriPb(id){ return pbKategori.find(k => k.id === id); }
+function findKumpulanPb(id){ return pbKumpulan.find(k => k.id === id); }
+
+// Semua kategori (Wajib DAN Boleh Laras) mesti ada bajet (kotak > 0) dulu untuk
+// bulan ni sebelum boleh buat aktiviti lain (Tambah Perbelanjaan, Pindah, Pinjam).
+// Guna pbRingkasan (bukan panggilan API baharu) sebab data ni dah dimuatkan.
+function bajetBelumLengkapPb(){
+  return pbRingkasan.kategori.filter(k => k.belanjawan <= 0);
+}
+function aktivitiLainDibenarkanPb(){
+  return bajetBelumLengkapPb().length === 0;
+}
+
+function bulanOffsetPb(bulan, delta){
+  const [y,m] = bulan.split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function bulanSebelumPb(bulan){ return bulanOffsetPb(bulan, -1); }
+
+function renderPbBajetBanner(){
+  const belum = bajetBelumLengkapPb();
+  const el = document.getElementById('pbBajetBanner');
+  const btnPindah = document.getElementById('pbBtnPindah');
+  const btnTambah = document.getElementById('pbBtnTambah');
+  if(belum.length){
+    el.innerHTML = `<div class="bajet-banner">
+      <div class="figures">📋 Isi bajet semua kategori dulu untuk bulan ni sebelum boleh buat aktiviti lain</div>
+      <div class="warning">Belum diisi: ${belum.map(k=>escapeHtml(k.nama)).join(', ')}</div>
+      <button class="btn-ghost" onclick="salinBajetBulanLepasPb()">📋 Salin bajet dari ${escapeHtml(namaBulanPb(bulanSebelumPb(pbBulanSemasa)))}</button>
+    </div>`;
+    btnPindah.style.opacity = '0.4';
+    btnTambah.style.opacity = '0.4';
+  } else {
+    el.innerHTML = '';
+    btnPindah.style.opacity = '1';
+    btnTambah.style.opacity = '1';
+  }
+}
+
+async function salinBajetBulanLepasPb(){
+  const bulanLepas = bulanSebelumPb(pbBulanSemasa);
+  if(!confirm(`Salin semua jumlah kotak dari ${namaBulanPb(bulanLepas)} ke ${namaBulanPb(pbBulanSemasa)}? Kotak yang sudah diisi bulan ni akan ditulis ganti.`)) return;
+  try{
+    const kotakLepas = await api('/belanjawan?bulan=' + bulanLepas);
+    const nakDisalin = kotakLepas.filter(b => parseFloat(b.jumlah_belanjawan) > 0)
+      .sort((a,b) => (a.jenis === 'wajib' ? -1 : 1) - (b.jenis === 'wajib' ? -1 : 1));
+    // Salin ni tindakan pukal untuk kemudahan — sama macam prototaip, jangan biar
+    // SATU kategori yang kena sekat (contoh: had kumpulan, sebab Hasil bulan baharu
+    // belum direkod lagi) hentikan salinan kategori LAIN. Cuba semua, kumpul
+    // kegagalan, dan beritahu pengguna selepas siap (amaran, bukan sekatan).
+    const gagal = [];
+    for(const b of nakDisalin){
+      try{
+        await api('/belanjawan', { method:'PUT', body: JSON.stringify({ kategoriId: b.kategori_id, bulan: pbBulanSemasa, jumlah: parseFloat(b.jumlah_belanjawan) }) });
+      }catch(e){
+        gagal.push(b.kategori_nama);
+      }
+    }
+    await loadPerbelanjaanData();
+    if(gagal.length){
+      showToast(`Bajet disalin. Tapi ${gagal.length} kategori gagal disalin (contoh: had kumpulan/Hasil belum ditetapkan) — sila laraskan manual: ${gagal.join(', ')}`, true);
+    } else {
+      showToast('Bajet disalin dari bulan lepas.');
+    }
+  }catch(e){ showToast(e.message, true); }
+}
 
 function renderPbCompareCard(){
   const totalBelanjawan = pbRingkasan.jumlah_belanjawan || 0;
@@ -1058,10 +1248,13 @@ function renderPbCompareCard(){
 }
 
 function renderPbDlbPanel(){
-  const locked = pbDlb.adaTunggakanSebelumBulan;
+  const bajetBelum = bajetBelumLengkapPb();
+  const locked = pbDlb.adaTunggakanSebelumBulan || bajetBelum.length > 0;
   const semuaBelumBayar = pbDlb.senaraiBelumDibayar || [];
   let desc;
-  if(locked){
+  if(bajetBelum.length){
+    desc = `Isi bajet semua kategori dulu untuk bulan ni sebelum boleh pinjam`;
+  } else if(pbDlb.adaTunggakanSebelumBulan){
     const t = semuaBelumBayar.find(p => p.bulan_pinjam < pbBulanSemasa) || semuaBelumBayar[0];
     desc = `Ada pinjaman ${fmt(t.jumlah)} (${escapeHtml(t.kategori_nama)}, ${namaBulanPb(t.bulan_pinjam)}) belum dibayar — wajib selesai sebelum pinjam baharu`;
   } else if(semuaBelumBayar.length){
@@ -1096,45 +1289,121 @@ function wajibBelumTerisiPb(){
   return pbRingkasan.kategori.filter(k => k.jenis === 'wajib' && k.belanjawan <= 0);
 }
 
-function renderPbBoxGrid(){
-  const belum = wajibBelumTerisiPb();
-  const larasLocked = belum.length > 0;
-  document.getElementById('pbBoxGrid').innerHTML = pbRingkasan.kategori.map(k => {
-    const over = k.dibelanjakan > k.belanjawan;
-    const pct = k.belanjawan > 0 ? Math.min(100, (k.dibelanjakan/k.belanjawan)*100) : (k.dibelanjakan > 0 ? 100 : 0);
-    const badgeClass = k.jenis === 'wajib' ? 'wajib' : 'laras';
-    const badgeText = k.jenis === 'wajib' ? 'Wajib' : 'Boleh Laras';
-    const bakiText = over ? `Lebih: ${fmt(k.dibelanjakan - k.belanjawan)}` : `Baki: ${fmt(k.belanjawan - k.dibelanjakan)}`;
-    const pinjamanHtml = k.pinjamanAktif > 0
-      ? `<div style="margin-top:6px; font-size:10px; color:var(--gold); background:var(--gold-soft); border-radius:4px; padding:3px 7px; display:inline-block;">🛟 Termasuk ${fmt(k.pinjamanAktif)} pinjaman belum dibayar</div>`
-      : '';
-    const isActive = pbKategoriFilterAktif === k.kategoriId;
-    const isLockedLaras = k.jenis === 'boleh_laras' && larasLocked;
-    const kotakLink = isLockedLaras
-      ? `<span class="edit" style="font-size:11px;color:var(--text-faint);cursor:not-allowed;" title="Isi kategori Wajib dulu">🔒 Kotak</span>`
-      : `<span class="edit" style="font-size:11px;color:var(--text-faint);cursor:pointer;" onclick="event.stopPropagation(); bukaKotakPbModal('${k.kategoriId}')">Kotak</span>`;
-    const lockedNoteHtml = isLockedLaras
-      ? `<div style="margin-top:6px; font-size:10px; color:var(--text-faint);">🔒 Isi kategori Wajib dulu sebelum kategori ni</div>` : '';
-    return `
-      <div class="box ${over?'over':''} ${isActive?'filter-active':''} ${isLockedLaras?'laras-locked':''}" onclick="filterKategoriPb('${k.kategoriId}')">
-        <div class="box-head">
-          <span class="name">${escapeHtml(k.nama)}<span class="badge ${badgeClass}">${badgeText}</span></span>
-          ${kotakLink}
+function findRingkasanPb(kategoriId){ return pbRingkasan.kategori.find(k => k.kategoriId === kategoriId); }
+
+function getBajetKumpulanPb(kumpulanId){
+  const kum = findKumpulanPb(kumpulanId);
+  if(!kum) return 0;
+  return (kum.peratus / 100) * pbHasilBulan;
+}
+function getTerperuntukKumpulanPb(kumpulanId){
+  return pbKategori.filter(k => k.kumpulanId === kumpulanId)
+    .reduce((s,k) => { const r = findRingkasanPb(k.id); return s + (r ? r.belanjawan : 0); }, 0);
+}
+
+function renderPbKotakRow(k, larasLocked){
+  const r = findRingkasanPb(k.id) || { belanjawan: 0, dibelanjakan: 0, pinjamanAktif: 0 };
+  const aktivitiLocked = !aktivitiLainDibenarkanPb();
+  const over = r.dibelanjakan > r.belanjawan;
+  const baki = r.belanjawan - r.dibelanjakan;
+  const bakiHtml = over ? `<span class="baki-over">-${fmt(Math.abs(baki))}</span>` : fmt(baki);
+  const badgeClass = k.jenis === 'wajib' ? 'wajib' : 'laras';
+  const badgeText = k.jenis === 'wajib' ? 'Wajib' : 'Boleh Laras';
+  const pinjamanNote = r.pinjamanAktif > 0 ? `<span class="pinjaman-note">🛟 +${fmt(r.pinjamanAktif)} pinjaman</span>` : '';
+  const isActive = pbKategoriFilterAktif === k.id;
+  const isLockedLaras = k.jenis === 'boleh_laras' && larasLocked;
+
+  const editBtn = isLockedLaras
+    ? `<button class="icon-btn" disabled title="Isi kategori Wajib dulu">🔒</button>`
+    : `<button class="icon-btn" title="Edit Bajet" onclick="event.stopPropagation(); bukaKotakPbModal('${k.id}')">✏️</button>`;
+
+  return `
+    <tr class="kotak-row ${isActive?'filter-active':''} ${isLockedLaras?'locked':''}" onclick="filterKategoriPb('${k.id}')">
+      <td>${escapeHtml(k.nama)}${pinjamanNote}</td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      <td class="num">${fmt(r.belanjawan)}</td>
+      <td class="num">${fmt(r.dibelanjakan)}</td>
+      <td class="num">${bakiHtml}</td>
+      <td class="num" onclick="event.stopPropagation()">
+        <div class="kotak-actions">
+          ${editBtn}
+          <button class="icon-btn" ${aktivitiLocked?'disabled':''} title="Tambah Penggunaan" onclick="bukaPerbelanjaanTxnModal('new', null, '${k.id}')">➕</button>
+          <select class="waran-select" ${aktivitiLocked?'disabled':''} onchange="handlePbWaranAction(this, '${k.id}')">
+            <option value="" selected>⚙️ Waran ▾</option>
+            <option value="pindah">Pindah Peruntukan</option>
+            <option value="pinjam">Pinjam Dana Luar Biasa</option>
+          </select>
+          <button class="icon-btn" title="Edit Kategori" onclick="event.stopPropagation(); bukaKategoriPbModal('edit','${k.id}')">🏷️</button>
+          <button class="icon-btn" title="Sejarah" onclick="event.stopPropagation(); bukaSejarahPbKategori('${k.id}')">📊</button>
         </div>
-        <div class="amount">${fmt(k.dibelanjakan)} <span class="of">/ ${Math.round(k.belanjawan)}</span></div>
-        <div class="progress-track"><div class="progress-fill ${over?'':''}" style="width:${pct}%; background:${over?'var(--coral)':'var(--gold)'};"></div></div>
-        <div class="baki ${over?'over':''}">${bakiText}</div>
-        ${pinjamanHtml}
-        ${lockedNoteHtml}
-        <div style="margin-top:8px; font-size:10.5px; color:var(--text-faint); cursor:pointer;" onclick="event.stopPropagation(); bukaKategoriPbModal('edit','${k.kategoriId}')">Edit kategori</div>
+      </td>
+    </tr>
+  `;
+}
+
+function renderPbKotakBody(){
+  const larasLocked = wajibBelumTerisiPb().length > 0;
+
+  // Kumpulkan kategori ikut kumpulanId (null/tiada = "Belum Berkumpulan").
+  const kumpulanMap = new Map();
+  pbKategori.forEach(k => {
+    const key = k.kumpulanId || 'UNGROUPED';
+    if(!kumpulanMap.has(key)) kumpulanMap.set(key, []);
+    kumpulanMap.get(key).push(k);
+  });
+
+  // "Belum Berkumpulan" sentiasa letak PALING BAWAH
+  const keys = [...kumpulanMap.keys()].filter(k => k !== 'UNGROUPED');
+  if(kumpulanMap.has('UNGROUPED')) keys.push('UNGROUPED');
+
+  const blocksHtml = keys.map(key => {
+    const senaraiKategori = kumpulanMap.get(key);
+    const isUngrouped = key === 'UNGROUPED';
+    const rows = senaraiKategori.map(k => renderPbKotakRow(k, larasLocked)).join('');
+
+    let barHtml;
+    if(isUngrouped){
+      barHtml = `<div class="kumpulan-bar ungrouped">Belum Berkumpulan</div>`;
+    } else {
+      const kum = findKumpulanPb(key);
+      if(!kum) return '';
+      const bajet = getBajetKumpulanPb(key);
+      const terperuntuk = getTerperuntukKumpulanPb(key);
+      const baki = bajet - terperuntuk;
+      const bakiStyle = baki < 0 ? 'color:var(--coral);' : '';
+      barHtml = `
+        <div class="kumpulan-bar clickable" data-kumpulan-id="${kum.id}" onclick="bukaKumpulanPbModal(this.dataset.kumpulanId)">
+          <span>${escapeHtml(kum.nama)} &middot; ${kum.peratus}%</span>
+          <span class="kumpulan-angka">Bajet: ${fmt(bajet)} &nbsp;&middot;&nbsp; Diperuntuk: ${fmt(terperuntuk)} &nbsp;&middot;&nbsp; <span style="${bakiStyle}">Baki: ${fmt(baki)}</span></span>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="kumpulan-block">
+        ${barHtml}
+        <table>
+          <thead><tr><th>Perkara</th><th>Jenis</th><th class="num">Bajet</th><th class="num">Penggunaan</th><th class="num">Baki</th><th class="num">Tindakan</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
     `;
   }).join('');
+
+  document.getElementById('pbKotakBody').innerHTML = blocksHtml
+    + `<div class="add-kategori-row" onclick="bukaKategoriPbModal('new')">+ Tambah kategori</div>`;
+}
+
+function handlePbWaranAction(selectEl, kategoriId){
+  const action = selectEl.value;
+  selectEl.value = '';
+  if(action === 'pindah') bukaPindahModal(kategoriId);
+  else if(action === 'pinjam') bukaPinjamModal(kategoriId);
 }
 
 function filterKategoriPb(kategoriId){
   pbKategoriFilterAktif = (pbKategoriFilterAktif === kategoriId) ? null : kategoriId;
-  renderPbBoxGrid();
+  renderPbKotakBody();
   renderPbWaranList();
   renderPbLedger();
 }
@@ -1230,19 +1499,25 @@ function isiDropdownKategoriPb(selectId){
 
 // ---- Kategori ----
 let katPbEditId = null;
+function isiDatalistKumpulanPb(){
+  document.getElementById('pbKumpulanList').innerHTML = pbKumpulan.map(k => `<option value="${escapeHtml(k.nama)}"></option>`).join('');
+}
 function bukaKategoriPbModal(mode, id){
   katPbEditId = id || null;
   document.getElementById('katPbErrorMsg').style.display = 'none';
+  isiDatalistKumpulanPb();
   if(mode === 'new'){
     document.getElementById('katPbModalTitle').textContent = 'Kategori baharu';
     document.getElementById('katPbNamaInput').value = '';
     document.getElementById('katPbJenisInput').value = 'boleh_laras';
+    document.getElementById('katPbKumpulanInput').value = '';
     document.getElementById('katPbDeleteBtn').style.display = 'none';
   } else {
     const k = findKategoriPb(id);
     document.getElementById('katPbModalTitle').textContent = 'Edit kategori';
     document.getElementById('katPbNamaInput').value = k.nama;
     document.getElementById('katPbJenisInput').value = k.jenis;
+    document.getElementById('katPbKumpulanInput').value = k.kumpulanId ? (findKumpulanPb(k.kumpulanId) ? findKumpulanPb(k.kumpulanId).nama : '') : '';
     document.getElementById('katPbDeleteBtn').style.display = 'inline-block';
   }
   document.getElementById('katPbOverlay').classList.add('show');
@@ -1250,13 +1525,14 @@ function bukaKategoriPbModal(mode, id){
 async function simpanKategoriPb(){
   const nama = document.getElementById('katPbNamaInput').value.trim();
   const jenis = document.getElementById('katPbJenisInput').value;
+  const kumpulan = document.getElementById('katPbKumpulanInput').value.trim();
   const errEl = document.getElementById('katPbErrorMsg');
   if(!nama){ errEl.textContent = 'Nama kategori diperlukan.'; errEl.style.display='block'; return; }
   try{
     if(katPbEditId){
-      await api('/kategori-perbelanjaan/' + katPbEditId, { method:'PATCH', body: JSON.stringify({ nama, jenis }) });
+      await api('/kategori-perbelanjaan/' + katPbEditId, { method:'PATCH', body: JSON.stringify({ nama, jenis, kumpulan }) });
     } else {
-      await api('/kategori-perbelanjaan', { method:'POST', body: JSON.stringify({ nama, jenis }) });
+      await api('/kategori-perbelanjaan', { method:'POST', body: JSON.stringify({ nama, jenis, kumpulan }) });
     }
     await loadPerbelanjaanData();
     closeModalPb('katPbOverlay');
@@ -1275,6 +1551,64 @@ async function padamKategoriPb(){
     const errEl = document.getElementById('katPbErrorMsg');
     errEl.textContent = e.message; errEl.style.display = 'block';
   }
+}
+
+// ---- Kumpulan ----
+let kumpulanPbEditId = null;
+function bukaKumpulanPbModal(kumpulanId){
+  kumpulanPbEditId = kumpulanId;
+  const kum = findKumpulanPb(kumpulanId);
+  if(!kum) return;
+  document.getElementById('kumpulanPbNamaInput').value = kum.nama;
+  document.getElementById('kumpulanPbPeratusInput').value = kum.peratus;
+  document.getElementById('kumpulanPbBajetInput').value = getBajetKumpulanPb(kumpulanId).toFixed(2);
+  document.getElementById('kumpulanPbErrorMsg').style.display = 'none';
+  document.getElementById('kumpulanPbOverlay').classList.add('show');
+}
+// Sync dua-hala: isi satu, satu lagi dikira automatik ikut Hasil bulan semasa.
+function syncKumpulanPbDariPeratus(){
+  const peratus = parseFloat(document.getElementById('kumpulanPbPeratusInput').value) || 0;
+  document.getElementById('kumpulanPbBajetInput').value = ((peratus / 100) * pbHasilBulan).toFixed(2);
+}
+function syncKumpulanPbDariBajet(){
+  const bajet = parseFloat(document.getElementById('kumpulanPbBajetInput').value) || 0;
+  const errEl = document.getElementById('kumpulanPbErrorMsg');
+  if(pbHasilBulan <= 0){
+    errEl.textContent = 'Hasil bulan ni RM0 — tak boleh kira peratus. Tetapkan Hasil dulu.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  document.getElementById('kumpulanPbPeratusInput').value = ((bajet / pbHasilBulan) * 100).toFixed(1);
+}
+async function simpanKumpulanPb(){
+  const nama = document.getElementById('kumpulanPbNamaInput').value.trim();
+  const peratus = parseFloat(document.getElementById('kumpulanPbPeratusInput').value);
+  const errEl = document.getElementById('kumpulanPbErrorMsg');
+  if(!nama){ errEl.textContent = 'Nama kumpulan diperlukan.'; errEl.style.display='block'; return; }
+  try{
+    await api('/kumpulan/' + kumpulanPbEditId, { method:'PATCH', body: JSON.stringify({ nama, peratus }) });
+    await loadPerbelanjaanData();
+    closeModalPb('kumpulanPbOverlay');
+    showToast('Kumpulan dikemaskini.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+async function padamKumpulanPb(){
+  const kum = findKumpulanPb(kumpulanPbEditId);
+  if(!kum) return;
+  const ahli = pbKategori.filter(k => k.kumpulanId === kumpulanPbEditId);
+  const msg = ahli.length
+    ? `${ahli.length} kategori (${ahli.map(k=>k.nama).join(', ')}) akan dipindah ke "Belum Berkumpulan". Padam kumpulan "${kum.nama}"?`
+    : `Padam kumpulan "${kum.nama}"?`;
+  if(!confirm(msg)) return;
+  try{
+    await api('/kumpulan/' + kumpulanPbEditId, { method:'DELETE' });
+    await loadPerbelanjaanData();
+    closeModalPb('kumpulanPbOverlay');
+    showToast('Kumpulan dipadam.');
+  }catch(e){ showToast(e.message, true); }
 }
 
 // ---- Kotak ----
@@ -1307,12 +1641,20 @@ async function simpanKotakPb(){
 
 // ---- Rekod Perbelanjaan ----
 let pbTxnEditId = null;
-function bukaPerbelanjaanTxnModal(mode, id){
+function bukaPerbelanjaanTxnModal(mode, id, preselectKategoriId){
+  if(mode === 'new'){
+    const belum = bajetBelumLengkapPb();
+    if(belum.length){
+      showToast('Isi bajet semua kategori dulu: ' + belum.map(k=>k.nama).join(', '), true);
+      return;
+    }
+  }
   pbTxnEditId = id || null;
   isiDropdownKategoriPb('pbTxnKategoriInput');
   document.getElementById('pbTxnErrorMsg').style.display = 'none';
   if(mode === 'new'){
     document.getElementById('pbTxnModalTitle').textContent = 'Tambah perbelanjaan';
+    if(preselectKategoriId) document.getElementById('pbTxnKategoriInput').value = preselectKategoriId;
     document.getElementById('pbTxnJumlahInput').value = '';
     document.getElementById('pbTxnTarikhInput').value = pbBulanSemasa + '-01';
     document.getElementById('pbTxnNotaInput').value = '';
@@ -1345,6 +1687,10 @@ async function simpanPerbelanjaanTxn(){
     closeModalPb('pbTxnOverlay');
     showToast('Rekod perbelanjaan disimpan.');
   }catch(e){
+    if(e.data && e.data.kategoriId && typeof e.data.baki === 'number'){
+      bukaKatTakCukupPbDialog(findKategoriPb(e.data.kategoriId) ? findKategoriPb(e.data.kategoriId).nama : kategoriId, e.data.baki, e.data.jumlahCuba, e.data.kategoriId);
+      return;
+    }
     errEl.textContent = e.message; errEl.style.display = 'block';
   }
 }
@@ -1366,9 +1712,16 @@ async function padamPerbelanjaanTxnTerus(id){
 }
 
 // ---- Waran Pindah ----
-function bukaPindahModal(){
+function bukaPindahModal(preselectDariId, preselectKeId){
+  const belum = bajetBelumLengkapPb();
+  if(belum.length){
+    showToast('Isi bajet semua kategori dulu: ' + belum.map(k=>k.nama).join(', '), true);
+    return;
+  }
   isiDropdownKategoriPb('pindahDariInput');
   isiDropdownKategoriPb('pindahKeInput');
+  if(preselectDariId) document.getElementById('pindahDariInput').value = preselectDariId;
+  if(preselectKeId) document.getElementById('pindahKeInput').value = preselectKeId;
   document.getElementById('pindahJumlahInput').value = '';
   document.getElementById('pindahSebabInput').value = '';
   document.getElementById('pindahErrorMsg').style.display = 'none';
@@ -1392,12 +1745,18 @@ async function simpanPindahPb(){
 }
 
 // ---- Dana Luar Biasa ----
-function bukaPinjamModal(){
+function bukaPinjamModal(preselectKategoriId){
+  const belum = bajetBelumLengkapPb();
+  if(belum.length){
+    showToast('Isi bajet semua kategori dulu: ' + belum.map(k=>k.nama).join(', '), true);
+    return;
+  }
   if(pbDlb.adaTunggakanSebelumBulan){
     showToast('Ada pinjaman tertunggak dari bulan lepas — bayar dulu.', true);
     return;
   }
   isiDropdownKategoriPb('pinjamKategoriInput');
+  if(preselectKategoriId) document.getElementById('pinjamKategoriInput').value = preselectKategoriId;
   document.getElementById('pinjamModalSub').textContent = `Baki tersedia: ${fmt(pbDlb.bakiTersedia)}`;
   document.getElementById('pinjamJumlahInput').value = '';
   document.getElementById('pinjamSebabInput').value = '';
@@ -1427,7 +1786,118 @@ async function bayarBalikPb(pinjamanId){
   }catch(e){ showToast(e.message, true); }
 }
 
-['katPbOverlay','kotakPbOverlay','pbTxnOverlay','pindahOverlay','pinjamOverlay'].forEach(id => {
+// ---- Sejarah kategori (6 bulan terkini) ----
+async function bukaSejarahPbKategori(kategoriId){
+  const k = findKategoriPb(kategoriId);
+  if(!k) return;
+  document.getElementById('sejarahPbTitle').textContent = 'Sejarah — ' + k.nama;
+  document.getElementById('sejarahPbTable').innerHTML = `<tr><th>Bulan</th><th>Bajet</th><th>Belanja</th><th>Baki</th></tr><tr><td colspan="4" class="empty">Memuatkan...</td></tr>`;
+  document.getElementById('sejarahPbOverlay').classList.add('show');
+  try{
+    const bulanList = [];
+    for(let i = 5; i >= 0; i--) bulanList.push(bulanOffsetPb(pbBulanSemasa, -i));
+    const ringkasanList = await Promise.all(bulanList.map(b => api('/belanjawan/ringkasan?bulan=' + b)));
+    const baris = bulanList.map((bulan, idx) => {
+      const r = ringkasanList[idx].kategori.find(x => x.kategoriId === kategoriId);
+      const bajet = r ? r.belanjawan : 0;
+      const belanja = r ? r.dibelanjakan : 0;
+      const over = belanja > bajet;
+      return `<tr><td>${escapeHtml(namaBulanPb(bulan))}</td><td class="num">${fmt(bajet)}</td><td class="num">${fmt(belanja)}</td><td class="num ${over?'baki-over':''}">${fmt(bajet-belanja)}</td></tr>`;
+    });
+    document.getElementById('sejarahPbTable').innerHTML = `<tr><th>Bulan</th><th>Bajet</th><th>Belanja</th><th>Baki</th></tr>${baris.join('')}`;
+  }catch(e){
+    document.getElementById('sejarahPbTable').innerHTML = `<tr><td colspan="4" class="empty">Tak dapat muatkan sejarah. (${escapeHtml(e.message)})</td></tr>`;
+  }
+}
+
+// ---- Kategori tak cukup baki ----
+let katTakCukupPbId = null;
+function bukaKatTakCukupPbDialog(kategoriNama, baki, jumlahCuba, kategoriId){
+  katTakCukupPbId = kategoriId;
+  document.getElementById('katTakCukupPbMsg').textContent =
+    `Kategori "${kategoriNama}" cuma ada baki ${fmt(baki)}, tapi kau cuba belanja ${fmt(jumlahCuba)}. Pindahkan peruntukan dari kategori lain, atau pinjam dari Dana Luar Biasa, untuk teruskan.`;
+  document.getElementById('katTakCukupPbOverlay').classList.add('show');
+}
+function dariKatTakCukupPbBukaPindah(){
+  closeModalPb('katTakCukupPbOverlay');
+  closeModalPb('pbTxnOverlay');
+  bukaPindahModal(null, katTakCukupPbId);
+}
+function dariKatTakCukupPbBukaPinjam(){
+  closeModalPb('katTakCukupPbOverlay');
+  closeModalPb('pbTxnOverlay');
+  bukaPinjamModal(katTakCukupPbId);
+}
+
+// ---- Pintasan ----
+function renderPbPintasanBar(){
+  const pills = pbPintasan.map(p => {
+    const kat = findKategoriPb(p.kategoriId);
+    const namaKat = kat ? kat.nama : '(kategori dipadam)';
+    return `<div class="pintasan-pill" onclick="klikPintasanPb('${p.id}')" title="Kategori: ${escapeHtml(namaKat)}">
+      ${escapeHtml(p.label)}
+      <span onclick="event.stopPropagation(); bukaPintasanPbModal('edit','${p.id}')">✏️</span>
+    </div>`;
+  }).join('');
+  document.getElementById('pbPintasanBar').innerHTML = pills +
+    `<div class="pintasan-add" onclick="bukaPintasanPbModal('new')">+ Pintasan</div>`;
+}
+function klikPintasanPb(pintasanId){
+  const p = pbPintasan.find(x => x.id === pintasanId);
+  if(!p) return;
+  const kat = findKategoriPb(p.kategoriId);
+  if(!kat){ showToast('Kategori pintasan ni dah dipadam — sunting atau padam pintasan tu.', true); return; }
+  bukaPerbelanjaanTxnModal('new', null, p.kategoriId);
+  document.getElementById('pbTxnNotaInput').value = p.label;
+  document.getElementById('pbTxnTarikhInput').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pbTxnJumlahInput').focus();
+}
+let pintasanPbEditId = null;
+function bukaPintasanPbModal(mode, id){
+  pintasanPbEditId = id || null;
+  isiDropdownKategoriPb('pintasanPbKategoriInput');
+  document.getElementById('pintasanPbErrorMsg').style.display = 'none';
+  if(mode === 'new'){
+    document.getElementById('pintasanPbModalTitle').textContent = 'Pintasan baharu';
+    document.getElementById('pintasanPbLabelInput').value = '';
+    document.getElementById('pintasanPbDeleteBtn').style.display = 'none';
+  } else {
+    const p = pbPintasan.find(x => x.id === id);
+    document.getElementById('pintasanPbModalTitle').textContent = 'Edit pintasan';
+    document.getElementById('pintasanPbLabelInput').value = p.label;
+    document.getElementById('pintasanPbKategoriInput').value = p.kategoriId;
+    document.getElementById('pintasanPbDeleteBtn').style.display = 'inline-block';
+  }
+  document.getElementById('pintasanPbOverlay').classList.add('show');
+}
+async function simpanPintasanPb(){
+  const label = document.getElementById('pintasanPbLabelInput').value.trim();
+  const kategoriId = document.getElementById('pintasanPbKategoriInput').value;
+  const errEl = document.getElementById('pintasanPbErrorMsg');
+  if(!label){ errEl.textContent = 'Label diperlukan.'; errEl.style.display='block'; return; }
+  try{
+    if(pintasanPbEditId){
+      await api('/pintasan/' + pintasanPbEditId, { method:'PATCH', body: JSON.stringify({ label, kategoriId }) });
+    } else {
+      await api('/pintasan', { method:'POST', body: JSON.stringify({ label, kategoriId }) });
+    }
+    await loadPerbelanjaanData();
+    closeModalPb('pintasanPbOverlay');
+    showToast('Pintasan disimpan.');
+  }catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+async function padamPintasanPb(){
+  try{
+    await api('/pintasan/' + pintasanPbEditId, { method:'DELETE' });
+    await loadPerbelanjaanData();
+    closeModalPb('pintasanPbOverlay');
+    showToast('Pintasan dipadam.');
+  }catch(e){ showToast(e.message, true); }
+}
+
+['katPbOverlay','kumpulanPbOverlay','sejarahPbOverlay','katTakCukupPbOverlay','pintasanPbOverlay','kotakPbOverlay','pbTxnOverlay','pindahOverlay','pinjamOverlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', (e) => { if(e.target.id === id) closeModalPb(id); });
 });
 

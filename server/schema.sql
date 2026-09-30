@@ -54,11 +54,38 @@ CREATE INDEX IF NOT EXISTS idx_hasil_tarikh ON hasil (tarikh DESC);
 
 -- ===== Modul Perbelanjaan / Belanjawan =====
 
+-- Kumpulan (grouping kategori bawah satu tajuk, contoh "Keperluan") — bajet
+-- kumpulan dikira sebagai peratus daripada Hasil bulanan; jumlah bajet
+-- kategori ahli dalam kumpulan tak boleh lebih daripada bajet kumpulan.
+CREATE TABLE IF NOT EXISTS kumpulan_perbelanjaan (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nama        TEXT NOT NULL UNIQUE,
+  peratus     NUMERIC(5,2) NOT NULL DEFAULT 0 CHECK (peratus >= 0 AND peratus <= 100),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS kategori_perbelanjaan (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nama        TEXT NOT NULL UNIQUE,
   jenis       TEXT NOT NULL DEFAULT 'boleh_laras' CHECK (jenis IN ('wajib','boleh_laras')),
+  kumpulan_id UUID REFERENCES kumpulan_perbelanjaan(id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Migrasi tambahan untuk pangkalan data SEDIA ADA (jadual dah wujud sebelum
+-- kumpulan_id dicipta) — IF NOT EXISTS elak ralat kalau dijalankan berulang.
+ALTER TABLE kategori_perbelanjaan ADD COLUMN IF NOT EXISTS kumpulan_id UUID REFERENCES kumpulan_perbelanjaan(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_kategori_kumpulan ON kategori_perbelanjaan (kumpulan_id);
+
+-- Pintasan Perbelanjaan — pil pintasan untuk kurangkan klik masa rekod
+-- perbelanjaan kerap (contoh: "Makan Tengahari" -> kategori Makanan).
+CREATE TABLE IF NOT EXISTS pintasan_perbelanjaan (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  label        TEXT NOT NULL,
+  kategori_id  UUID NOT NULL REFERENCES kategori_perbelanjaan(id) ON DELETE CASCADE,
+  urutan       INTEGER NOT NULL DEFAULT 0,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Kotak peruntukan — satu per kategori per bulan

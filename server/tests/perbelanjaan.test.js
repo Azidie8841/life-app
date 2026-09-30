@@ -23,6 +23,21 @@ async function api(path, options = {}) {
   return { status: res.status, data };
 }
 
+// Gate "bajet belum lengkap" semak SEMUA kategori dalam pangkalan data bagi
+// SATU bulan (bukan setakat kategori test ni) — jadi kategori tertinggal dari
+// test/fail LAIN (contoh tests/perbelanjaan-fasa2.test.js) boleh sekat aktiviti
+// gated (Tambah Perbelanjaan/Pindah/Pinjam) kalau kotak dorang kosong untuk
+// bulan yang sama. "Prima" kategori lain tu supaya gate hanya bergantung pada
+// kategori test kita sendiri.
+async function isiSemuaKotakLain(bulan, kecuali) {
+  const { data } = await api('/api/kategori-perbelanjaan');
+  // Wajib dulu (elak isu wajib-first bila kategori Wajib LAIN tu sendiri belum diisi).
+  const senarai = data.filter(k => !kecuali.includes(k.id)).sort((a, b) => (a.jenis === 'wajib' ? -1 : 1) - (b.jenis === 'wajib' ? -1 : 1));
+  for (const k of senarai) {
+    await api('/api/belanjawan', { method: 'PUT', body: JSON.stringify({ kategoriId: k.id, bulan, jumlah: 1 }) });
+  }
+}
+
 let katWajibId, katLarasId, txnId, waranId, pinjamanId;
 const suffix = Date.now();
 
@@ -69,6 +84,12 @@ test('set kotak WAJIB -> berjaya', async () => {
     method: 'PUT', body: JSON.stringify({ kategoriId: katWajibId, bulan: BULAN, jumlah: 700 })
   });
   assert.strictEqual(status, 200);
+});
+
+test('prima kotak kategori LAIN (dari fail test lain) untuk bulan ni supaya wajib-first & gate tak bertindih', async () => {
+  // Selamat sekarang sebab katWajibId (wajib kategori kita sendiri) dah terisi
+  // — wajib-first tak sekat priming kategori BOLEH LARAS tertinggal dari fail lain.
+  await isiSemuaKotakLain(BULAN, [katWajibId, katLarasId]);
 });
 
 test('set kotak BOLEH LARAS SEKARANG (wajib dah terisi) -> berjaya', async () => {

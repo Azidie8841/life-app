@@ -1,7 +1,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const asyncHandler = require('../utils/asyncHandler');
-const { wajibBelumTerisi } = require('../utils/perbelanjaanHelpers');
+const { wajibBelumTerisi, bajetBelumLengkap, semakHadKumpulan } = require('../utils/perbelanjaanHelpers');
 
 const router = express.Router();
 
@@ -47,10 +47,19 @@ router.post('/', asyncHandler(async (req, res) => {
   try {
     await client.query('BEGIN');
 
+    // Gate: semua kategori kena ada bajet diisi dulu untuk bulan ni sebelum Pindah dibenarkan
+    const belumLengkap = await bajetBelumLengkap(client, bulan);
+    if (belumLengkap.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: `Isi bajet semua kategori dulu untuk bulan ni: ${belumLengkap.map(k => k.nama).join(', ')}.`
+      });
+    }
+
     // Kunci kedua-dua kategori (ikut turutan ID supaya konsisten, elak deadlock)
     const ids = [kategoriDariId, kategoriKeId].sort();
     const kategoriRows = await client.query(
-      'SELECT id, nama, jenis FROM kategori_perbelanjaan WHERE id = ANY($1::uuid[]) FOR UPDATE',
+      'SELECT id, nama, jenis, kumpulan_id FROM kategori_perbelanjaan WHERE id = ANY($1::uuid[]) FOR UPDATE',
       [ids]
     );
     const kategoriDari = kategoriRows.rows.find(k => k.id === kategoriDariId);
@@ -81,6 +90,22 @@ router.post('/', asyncHandler(async (req, res) => {
       }
     }
 
+    const kotakKeResult = await client.query(
+      'SELECT jumlah_belanjawan FROM belanjawan WHERE kategori_id = $1 AND bulan = $2 FOR UPDATE',
+      [kategoriKeId, bulan]
+    );
+    const bakiKeSebelum = kotakKeResult.rows.length ? parseFloat(kotakKeResult.rows[0].jumlah_belanjawan) : 0;
+
+    // Had kumpulan — hanya relevan bila destinasi & asal ADA DALAM KUMPULAN BERBEZA
+    // (pindah dalam kumpulan yang sama neutral, jumlah kumpulan tak berubah).
+    if (kategoriDari.kumpulan_id !== kategoriKe.kumpulan_id) {
+      const ralatKumpulan = await semakHadKumpulan(client, kategoriKeId, bakiKeSebelum + jml, bulan);
+      if (ralatKumpulan) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: ralatKumpulan });
+      }
+    }
+
     await client.query(
       `INSERT INTO belanjawan (kategori_id, bulan, jumlah_belanjawan)
        VALUES ($1, $2, $3)
@@ -88,11 +113,6 @@ router.post('/', asyncHandler(async (req, res) => {
       [kategoriDariId, bulan, bakiDari - jml]
     );
 
-    const kotakKeResult = await client.query(
-      'SELECT jumlah_belanjawan FROM belanjawan WHERE kategori_id = $1 AND bulan = $2 FOR UPDATE',
-      [kategoriKeId, bulan]
-    );
-    const bakiKeSebelum = kotakKeResult.rows.length ? parseFloat(kotakKeResult.rows[0].jumlah_belanjawan) : 0;
     await client.query(
       `INSERT INTO belanjawan (kategori_id, bulan, jumlah_belanjawan)
        VALUES ($1, $2, $3)

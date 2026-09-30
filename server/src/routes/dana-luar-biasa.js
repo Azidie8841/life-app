@@ -1,7 +1,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const asyncHandler = require('../utils/asyncHandler');
-const { wajibBelumTerisi } = require('../utils/perbelanjaanHelpers');
+const { wajibBelumTerisi, bajetBelumLengkap, semakHadKumpulan } = require('../utils/perbelanjaanHelpers');
 
 const router = express.Router();
 
@@ -81,6 +81,15 @@ router.post('/pinjam', asyncHandler(async (req, res) => {
       return res.status(400).json({ error: `Baki tersedia cuma RM${bakiTersedia.toFixed(2)}.` });
     }
 
+    // Gate: semua kategori kena ada bajet diisi dulu untuk bulan ni sebelum Pinjam dibenarkan
+    const belumLengkap = await bajetBelumLengkap(client, bulan);
+    if (belumLengkap.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: `Isi bajet semua kategori dulu untuk bulan ni: ${belumLengkap.map(k => k.nama).join(', ')}.`
+      });
+    }
+
     const kategoriResult = await client.query(
       'SELECT id, nama, jenis FROM kategori_perbelanjaan WHERE id = $1 FOR UPDATE', [kategoriId]
     );
@@ -106,6 +115,15 @@ router.post('/pinjam', asyncHandler(async (req, res) => {
       [kategoriId, bulan]
     );
     const bakiSebelum = kotakResult.rows.length ? parseFloat(kotakResult.rows[0].jumlah_belanjawan) : 0;
+
+    // Had kumpulan — pinjaman naikkan kotak kategori destinasi, jadi tertakluk
+    // sama macam Edit Bajet & Pindah silang-kumpulan.
+    const ralatKumpulan = await semakHadKumpulan(client, kategoriId, bakiSebelum + jml, bulan);
+    if (ralatKumpulan) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: ralatKumpulan });
+    }
+
     await client.query(
       `INSERT INTO belanjawan (kategori_id, bulan, jumlah_belanjawan)
        VALUES ($1, $2, $3)
